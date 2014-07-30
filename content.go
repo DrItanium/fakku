@@ -2,6 +2,9 @@ package fakku
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
 )
 
 type Attribute struct {
@@ -64,6 +67,25 @@ func (c *Content) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+func GetContent(category, name string) (*Content, error) {
+	var c Content
+	url := fmt.Sprintf("https://api.fakku.net/%s/%s", category, name)
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(body, &c)
+	if err != nil {
+		return nil, err
+	}
+	return &c, nil
+}
+
 func constructAttributeFields(c map[string]interface{}, field string) []*Attribute {
 	tmp := c[field].([]interface{})
 	size := len(tmp)
@@ -83,4 +105,19 @@ func NewAttribute(c map[string]interface{}) *Attribute {
 
 func (a *Attribute) String() string {
 	return a.Attribute
+}
+
+type Comment struct {
+	Id         string  `json:"comment_id"`
+	AttachedId string  `json:"comment_attached_id"`
+	Poster     string  `json:"comment_poster"`
+	PosterUrl  string  `json:"comment_poster_url"`
+	Reputation float64 `json:"comment_reputation"`
+	Text       string  `json:"comment_text"`
+	Date       float64 `json:"comment_date"`
+}
+type Comments struct {
+	Comments []*Comment `json:"comments"`
+	Total    float64    `json:"total"`
+	Pages    float64    `json:"pages"`
 }
