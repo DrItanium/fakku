@@ -87,3 +87,10 @@ func TestContentGetComments_1(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestContentGetComments_2(t *testing.T) {
+	_, err := GetContentComments("manga", "right-now-while-cleaning-the-pool")
+	if err != nil {
+		t.Error(err)
+	}
+}

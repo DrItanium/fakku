@@ -82,17 +82,17 @@ type ContentApiFunction struct {
 
 var ApiHeader = "https://api.fakku.net/"
 
-func (a *ContentApiFunction) ConstructApiFunction() string {
+func (a ContentApiFunction) ConstructApiFunction() string {
 	return fmt.Sprintf("%s/%s/%s", ApiHeader, a.Category, a.Name)
 }
 
 type ContentCommentApiFunction struct {
-	*ContentApiFunction
+	ContentApiFunction
 	TopComments bool
 	Page        uint
 }
 
-func (a *ContentCommentApiFunction) ConstructApiFunction() string {
+func (a ContentCommentApiFunction) ConstructApiFunction() string {
 	base := fmt.Sprintf("%s/comments", a.ContentApiFunction.ConstructApiFunction())
 	if a.TopComments {
 		return fmt.Sprintf("%s/top", base)
@@ -106,11 +106,25 @@ func (a *ContentCommentApiFunction) ConstructApiFunction() string {
 }
 
 type ContentDownloadsApiFunction struct {
-	*ContentApiFunction
+	ContentApiFunction
 }
 
-func (a *ContentDownloadsApiFunction) ConstructApiFunction() string {
+func (a ContentDownloadsApiFunction) ConstructApiFunction() string {
 	return fmt.Sprintf("%s/downloads", a.ContentApiFunction.ConstructApiFunction())
+}
+
+type ContentReadOnlineApiFunction struct {
+	ContentApiFunction
+	Page uint
+}
+
+func (a ContentReadOnlineApiFunction) ConstructApiFunction() string {
+	base := fmt.Sprintf("%s/read", a.ContentApiFunction.ConstructApiFunction())
+	if a.Page == 0 {
+		return base
+	} else {
+		return PaginateString(base, a.Page)
+	}
 }
 
 func ApiCall(url ApiFunction, c interface{}) error {
@@ -130,11 +144,10 @@ func ApiCall(url ApiFunction, c interface{}) error {
 	return nil
 }
 
-/*
 func GetContentInformation(category, name string) (*Content, error) {
 	var c Content
-	url := AppendApiHeader(fmt.Sprintf("%s/%s", category, name))
-	err := ApiCall(url, &c)
+	q := ContentApiFunction{Category: category, Name: name}
+	err := ApiCall(q, &c)
 	if err != nil {
 		return nil, err
 	} else {
@@ -143,45 +156,50 @@ func GetContentInformation(category, name string) (*Content, error) {
 }
 func GetContentComments(category, name string) (*Comments, error) {
 	var c Comments
-	url := AppendApiHeader(fmt.Sprintf("%s/%s/comments", category, name))
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
+	url := ContentCommentApiFunction{
+		ContentApiFunction: ContentApiFunction{
+			Category: category,
+			Name:     name,
+		},
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
+	if err := ApiCall(url, &c); err != nil {
 		return nil, err
+	} else {
+		return &c, nil
 	}
-	err = json.Unmarshal(body, &c)
-	if err != nil {
-		return nil, err
-	}
-	return &c, nil
 }
-func GetContentCommentsPage(category, name string, page int) (*Comments, error) {
+
+func GetContentCommentsPage(category, name string, page uint) (*Comments, error) {
 	var c Comments
-	url := AppendApiHeader(AppendPagination(fmt.Sprintf("%s/%s/comments", category, name), page))
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
+	url := ContentCommentApiFunction{
+		ContentApiFunction: ContentApiFunction{
+			Category: category,
+			Name:     name,
+		},
+		Page: page,
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
+	if err := ApiCall(url, &c); err != nil {
 		return nil, err
+	} else {
+		return &c, nil
 	}
-	err = json.Unmarshal(body, &c)
-	if err != nil {
-		return nil, err
-	}
-	return &c, nil
 }
 
-func GetContentTopComments(category, name string) {
-
+func GetContentTopComments(category, name string) (*Comments, error) {
+	var c Comments
+	url := ContentCommentApiFunction{
+		ContentApiFunction: ContentApiFunction{
+			Category: category,
+			Name:     name,
+		},
+		TopComments: true,
+	}
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
 }
-*/
 
 func constructAttributeFields(c map[string]interface{}, field string) []*Attribute {
 	tmp := c[field].([]interface{})
