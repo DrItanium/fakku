@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 type Attribute struct {
-	Attribute     string
-	AttributeLink string
+	Attribute     string `json:"attribute"`
+	AttributeLink string `json:"attribute_link"`
 }
 type Content struct {
 	Name        string
@@ -24,10 +25,10 @@ type Content struct {
 	Pages       float64
 	Poster      string
 	PosterUrl   string
-	Tags        []*Attribute
-	Translators []*Attribute
-	Series      []*Attribute
-	Artists     []*Attribute
+	Tags        []*Attribute `json:"content_tags"`
+	Translators []*Attribute `json:"content_translators"`
+	Series      []*Attribute `json:"content_series"`
+	Artists     []*Attribute `json:"content_artists"`
 	Images      struct {
 		Cover  string
 		Sample string
@@ -65,6 +66,16 @@ func (c *Content) UnmarshalJSON(b []byte) error {
 	c.Images.Sample = z["sample"].(string)
 
 	return nil
+}
+
+func constructAttributeFields(c map[string]interface{}, field string) []*Attribute {
+	tmp := c[field].([]interface{})
+	size := len(tmp)
+	attrs := make([]*Attribute, size)
+	for i := 0; i < size; i++ {
+		attrs[i] = NewAttribute(tmp[i].(map[string]interface{}))
+	}
+	return attrs
 }
 
 func PaginateString(s string, page uint) string {
@@ -201,14 +212,14 @@ func GetContentTopComments(category, name string) (*Comments, error) {
 	}
 }
 
-func constructAttributeFields(c map[string]interface{}, field string) []*Attribute {
-	tmp := c[field].([]interface{})
-	size := len(tmp)
-	attrs := make([]*Attribute, size)
-	for i := 0; i < size; i++ {
-		attrs[i] = NewAttribute(tmp[i].(map[string]interface{}))
-	}
-	return attrs
+type Comment struct {
+	Id         float64 `json:"comment_id"`
+	AttachedId string  `json:"comment_attached_id"`
+	Poster     string  `json:"comment_poster"`
+	PosterUrl  string  `json:"comment_poster_url"`
+	Reputation float64 `json:"comment_reputation"`
+	Text       string  `json:"comment_text"`
+	Date       float64 `json:"comment_date"`
 }
 
 func NewAttribute(c map[string]interface{}) *Attribute {
@@ -222,18 +233,45 @@ func (a *Attribute) String() string {
 	return a.Attribute
 }
 
-type Comment struct {
-	Id         float64 `json:"comment_id"`
-	AttachedId string  `json:"comment_attached_id"`
-	Poster     string  `json:"comment_poster"`
-	PosterUrl  string  `json:"comment_poster_url"`
-	Reputation float64 `json:"comment_reputation"`
-	Text       string  `json:"comment_text"`
-	Date       float64 `json:"comment_date"`
-}
 type Comments struct {
 	Comments   []*Comment `json:"comments"`
 	PageNumber float64    `json:"page"`
 	Total      float64    `json:"total"`
 	Pages      float64    `json:"pages"`
+}
+
+type ReadOnlineContent struct {
+	Content *Content `json:"content"`
+	Pages   []*Page  `json:"pages"`
+}
+
+func (r *ReadOnlineContent) UnmarshalJSON(b []byte) error {
+	var f interface{}
+	if err := json.Unmarshal(b, &r.Content); err != nil {
+		return err
+	}
+	json.Unmarshal(b, &f)
+	m := f.(map[string]interface{})
+	pages := m["pages"]
+	v := pages.(map[string]interface{})
+	r.Pages = make([]*Page, len(v))
+	for i := 0; i < len(v); i++ {
+		ind := strconv.Itoa(i + 1)
+		r.Pages[i] = NewPage(ind, v[ind].(map[string]interface{}))
+	}
+	return nil
+}
+
+type Page struct {
+	Id    string
+	Thumb string
+	Image string
+}
+
+func NewPage(id string, c map[string]interface{}) *Page {
+	return &Page{
+		Id:    id,
+		Thumb: c["thumb"].(string),
+		Image: c["image"].(string),
+	}
 }
