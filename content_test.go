@@ -38,3 +38,14 @@ func TestContentGetComments_1(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestContentGetReadOnline_1(t *testing.T) {
+	onlineContent, err := GetContentReadOnline("manga", "right-now-while-cleaning-the-pool")
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(onlineContent.Pages) != 25 {
+		t.Errorf("Expected 25 pages, got %d pages", len(onlineContent.Pages))
+	}
+}

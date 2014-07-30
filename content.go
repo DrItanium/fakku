@@ -124,20 +124,6 @@ func (a ContentDownloadsApiFunction) ConstructApiFunction() string {
 	return fmt.Sprintf("%s/downloads", a.ContentApiFunction.ConstructApiFunction())
 }
 
-type ContentReadOnlineApiFunction struct {
-	ContentApiFunction
-	Page uint
-}
-
-func (a ContentReadOnlineApiFunction) ConstructApiFunction() string {
-	base := fmt.Sprintf("%s/read", a.ContentApiFunction.ConstructApiFunction())
-	if a.Page == 0 {
-		return base
-	} else {
-		return PaginateString(base, a.Page)
-	}
-}
-
 func ApiCall(url ApiFunction, c interface{}) error {
 	resp, err := http.Get(url.ConstructApiFunction())
 	if err != nil {
@@ -165,23 +151,25 @@ func GetContentInformation(category, name string) (*Content, error) {
 		return &c, nil
 	}
 }
-func GetContentComments(category, name string) (*Comments, error) {
+func getContentCommentsGeneric(url ApiFunction) (*Comments, error) {
 	var c Comments
-	url := ContentCommentApiFunction{
-		ContentApiFunction: ContentApiFunction{
-			Category: category,
-			Name:     name,
-		},
-	}
 	if err := ApiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil
 	}
 }
+func GetContentComments(category, name string) (*Comments, error) {
+	url := ContentCommentApiFunction{
+		ContentApiFunction: ContentApiFunction{
+			Category: category,
+			Name:     name,
+		},
+	}
+	return getContentCommentsGeneric(url)
+}
 
 func GetContentCommentsPage(category, name string, page uint) (*Comments, error) {
-	var c Comments
 	url := ContentCommentApiFunction{
 		ContentApiFunction: ContentApiFunction{
 			Category: category,
@@ -189,15 +177,10 @@ func GetContentCommentsPage(category, name string, page uint) (*Comments, error)
 		},
 		Page: page,
 	}
-	if err := ApiCall(url, &c); err != nil {
-		return nil, err
-	} else {
-		return &c, nil
-	}
+	return getContentCommentsGeneric(url)
 }
 
 func GetContentTopComments(category, name string) (*Comments, error) {
-	var c Comments
 	url := ContentCommentApiFunction{
 		ContentApiFunction: ContentApiFunction{
 			Category: category,
@@ -205,11 +188,7 @@ func GetContentTopComments(category, name string) (*Comments, error) {
 		},
 		TopComments: true,
 	}
-	if err := ApiCall(url, &c); err != nil {
-		return nil, err
-	} else {
-		return &c, nil
-	}
+	return getContentCommentsGeneric(url)
 }
 
 type Comment struct {
@@ -273,5 +252,28 @@ func NewPage(id string, c map[string]interface{}) *Page {
 		Id:    id,
 		Thumb: c["thumb"].(string),
 		Image: c["image"].(string),
+	}
+}
+
+type ContentReadOnlineApiFunction struct {
+	ContentApiFunction
+}
+
+func (a ContentReadOnlineApiFunction) ConstructApiFunction() string {
+	return fmt.Sprintf("%s/read", a.ContentApiFunction.ConstructApiFunction())
+}
+
+func GetContentReadOnline(category, name string) (*ReadOnlineContent, error) {
+	var c ReadOnlineContent
+	url := ContentReadOnlineApiFunction{
+		ContentApiFunction: ContentApiFunction{
+			Category: category,
+			Name:     name,
+		},
+	}
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
 	}
 }
