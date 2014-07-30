@@ -67,9 +67,83 @@ func (c *Content) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func GetContent(category, name string) (*Content, error) {
+func PaginateString(s string, page uint) string {
+	return fmt.Sprintf("%s/page/%d", s, page)
+}
+
+type ApiFunction interface {
+	ConstructApiFunction() string
+}
+
+type ContentApiFunction struct {
+	Category string
+	Name     string
+}
+
+var ApiHeader = "https://api.fakku.net/"
+
+func (a *ContentApiFunction) ConstructApiFunction() string {
+	return fmt.Sprintf("%s/%s/%s", ApiHeader, a.Category, a.Name)
+}
+
+type ContentCommentApiFunction struct {
+	*ContentApiFunction
+	TopComments bool
+	Page        uint
+}
+
+func (a *ContentCommentApiFunction) ConstructApiFunction() string {
+	base := fmt.Sprintf("%s/comments", a.ContentApiFunction.ConstructApiFunction())
+	if a.TopComments {
+		return fmt.Sprintf("%s/top", base)
+	} else {
+		if a.Page == 0 {
+			return base
+		} else {
+			return PaginateString(base, a.Page)
+		}
+	}
+}
+
+type ContentDownloadsApiFunction struct {
+	*ContentApiFunction
+}
+
+func (a *ContentDownloadsApiFunction) ConstructApiFunction() string {
+	return fmt.Sprintf("%s/downloads", a.ContentApiFunction.ConstructApiFunction())
+}
+
+func ApiCall(url ApiFunction, c interface{}) error {
+	resp, err := http.Get(url.ConstructApiFunction())
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(body, &c)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+/*
+func GetContentInformation(category, name string) (*Content, error) {
 	var c Content
-	url := fmt.Sprintf("https://api.fakku.net/%s/%s", category, name)
+	url := AppendApiHeader(fmt.Sprintf("%s/%s", category, name))
+	err := ApiCall(url, &c)
+	if err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
+func GetContentComments(category, name string) (*Comments, error) {
+	var c Comments
+	url := AppendApiHeader(fmt.Sprintf("%s/%s/comments", category, name))
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -85,6 +159,29 @@ func GetContent(category, name string) (*Content, error) {
 	}
 	return &c, nil
 }
+func GetContentCommentsPage(category, name string, page int) (*Comments, error) {
+	var c Comments
+	url := AppendApiHeader(AppendPagination(fmt.Sprintf("%s/%s/comments", category, name), page))
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(body, &c)
+	if err != nil {
+		return nil, err
+	}
+	return &c, nil
+}
+
+func GetContentTopComments(category, name string) {
+
+}
+*/
 
 func constructAttributeFields(c map[string]interface{}, field string) []*Attribute {
 	tmp := c[field].([]interface{})
@@ -108,7 +205,7 @@ func (a *Attribute) String() string {
 }
 
 type Comment struct {
-	Id         string  `json:"comment_id"`
+	Id         float64 `json:"comment_id"`
 	AttachedId string  `json:"comment_attached_id"`
 	Poster     string  `json:"comment_poster"`
 	PosterUrl  string  `json:"comment_poster_url"`
@@ -117,7 +214,8 @@ type Comment struct {
 	Date       float64 `json:"comment_date"`
 }
 type Comments struct {
-	Comments []*Comment `json:"comments"`
-	Total    float64    `json:"total"`
-	Pages    float64    `json:"pages"`
+	Comments   []*Comment `json:"comments"`
+	PageNumber float64    `json:"page"`
+	Total      float64    `json:"total"`
+	Pages      float64    `json:"pages"`
 }
