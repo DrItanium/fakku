@@ -94,3 +94,13 @@ func TestGetContentRelated_1(t *testing.T) {
 		t.Errorf("Was unable to find an adequte enough of related content pages! Expected at least: %d, Got: %d", ContentTestingRelatedPages, related.Total)
 	}
 }
+
+// Test to see if the DMCA takedowns are correctly caught
+func TestDMCATakedown_1(t *testing.T) {
+	_, err := GetContentReadOnline(CategoryManga, "renai-sample-ch01-english")
+	if err == nil {
+		t.Error("DMCA takedown notice not found!")
+	} else {
+		t.Log(err)
+	}
+}

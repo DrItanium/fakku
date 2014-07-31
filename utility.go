@@ -2,6 +2,7 @@ package fakku
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -10,6 +11,15 @@ var ApiHeader = "https://api.fakku.net/"
 
 type ApiFunction interface {
 	ConstructApiFunction() string
+}
+type ErrorStatus struct {
+	ErrorCode    int
+	ErrorMessage string `json:"error"`
+	KnownError   bool
+}
+
+func (e *ErrorStatus) Error() string {
+	return fmt.Sprintf("Error %d: %s", e.ErrorCode, e.ErrorMessage)
 }
 
 func ApiCall(url ApiFunction, c interface{}) error {
@@ -22,9 +32,25 @@ func ApiCall(url ApiFunction, c interface{}) error {
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(body, &c)
-	if err != nil {
-		return err
+	switch resp.StatusCode {
+	case 200:
+		err = json.Unmarshal(body, &c)
+		if err != nil {
+			return err
+		}
+		return nil
+	case 404, 451, 503:
+		// right now just harvest the error code
+		var ec ErrorStatus
+		ec.KnownError = true
+		ec.ErrorCode = resp.StatusCode
+		err = json.Unmarshal(body, &ec)
+		if err != nil {
+			return err
+		} else {
+			return &ec
+		}
+	default:
+		return &ErrorStatus{ErrorCode: resp.StatusCode, ErrorMessage: resp.Status, KnownError: false}
 	}
-	return nil
 }
