@@ -306,3 +306,32 @@ type Download struct {
 	Poster        string  `json:"download_poster"`
 	PosterUrl     string  `json:"download_poster_url"`
 }
+
+type ContentRelatedApiFunction struct {
+	ContentApiFunction
+}
+
+func (a ContentRelatedApiFunction) ConstructApiFunction() string {
+	return fmt.Sprintf("%s/related", a.ContentApiFunction.ConstructApiFunction())
+}
+
+type RelatedContent struct {
+	Related []*Content `json:"related"`
+	Total   uint       `json:"total"`
+	Pages   uint       `json:"pages"`
+}
+
+func GetContentRelated(category, name string) (*RelatedContent, error) {
+	var c RelatedContent
+	url := ContentRelatedApiFunction{
+		ContentApiFunction: ContentApiFunction{
+			Category: category,
+			Name:     name,
+		},
+	}
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
