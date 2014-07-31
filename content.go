@@ -43,6 +43,12 @@ func (c *Content) UnmarshalJSON(b []byte) error {
 	contents := m["content"]
 	v := contents.(map[string]interface{})
 
+	c.populateContent(v)
+
+	return nil
+}
+
+func (c *Content) populateContent(v map[string]interface{}) {
 	c.Name = v["content_name"].(string)
 	c.Url = v["content_url"].(string)
 	c.Description = v["content_description"].(string)
@@ -64,8 +70,6 @@ func (c *Content) UnmarshalJSON(b []byte) error {
 	z := tmp.(map[string]interface{})
 	c.Images.Cover = z["cover"].(string)
 	c.Images.Sample = z["sample"].(string)
-
-	return nil
 }
 
 func constructAttributeFields(c map[string]interface{}, field string) []*Attribute {
@@ -309,10 +313,17 @@ type Download struct {
 
 type ContentRelatedApiFunction struct {
 	ContentApiFunction
+	Page uint
 }
 
 func (a ContentRelatedApiFunction) ConstructApiFunction() string {
-	return fmt.Sprintf("%s/related", a.ContentApiFunction.ConstructApiFunction())
+	base := fmt.Sprintf("%s/related", a.ContentApiFunction.ConstructApiFunction())
+	fmt.Println(base)
+	if a.Page == 0 {
+		return base
+	} else {
+		return PaginateString(base, a.Page)
+	}
 }
 
 type RelatedContent struct {
@@ -321,17 +332,40 @@ type RelatedContent struct {
 	Pages   uint       `json:"pages"`
 }
 
-func GetContentRelated(category, name string) (*RelatedContent, error) {
+func GetRelatedContentAll(category, name string) (*RelatedContent, error) {
+	return GetRelatedContent(category, name, 0)
+}
+
+func GetRelatedContent(category, name string, page uint) (*RelatedContent, error) {
 	var c RelatedContent
 	url := ContentRelatedApiFunction{
 		ContentApiFunction: ContentApiFunction{
 			Category: category,
 			Name:     name,
 		},
+		Page: page,
 	}
 	if err := ApiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil
 	}
+}
+
+func (c *RelatedContent) UnmarshalJSON(b []byte) error {
+	// slightly different
+	var f interface{}
+	json.Unmarshal(b, &f)
+	m := f.(map[string]interface{})
+	related := m["related"]
+	v := related.([]interface{})
+	c.Related = make([]*Content, len(v))
+	for i := 0; i < len(v); i++ {
+		var q Content
+		q.populateContent(v[i].(map[string]interface{}))
+		c.Related[i] = &q
+	}
+	c.Total = uint(m["total"].(float64))
+	c.Pages = uint(m["pages"].(float64))
+	return nil
 }

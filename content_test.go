@@ -6,12 +6,14 @@ import (
 
 const (
 	// Test the manga listed in the API docs
-	ContentTestingCategory    = "manga"
-	ContentTestingName        = "right-now-while-cleaning-the-pool"
-	ContentTestingUrl         = "http://www.fakku.net/manga/right-now-while-cleaning-the-pool"
-	ContentTestingTag         = "Vanilla"
-	ContentTestingDisplayName = "Right now, while cleaning the pool"
-	ContentTestingPoster      = "Jacob"
+	ContentTestingCategory     = "manga"
+	ContentTestingName         = "right-now-while-cleaning-the-pool"
+	ContentTestingUrl          = "http://www.fakku.net/manga/right-now-while-cleaning-the-pool"
+	ContentTestingTag          = "Vanilla"
+	ContentTestingDisplayName  = "Right now, while cleaning the pool"
+	ContentTestingPoster       = "Jacob"
+	ContentTestingRelatedTotal = 11236
+	ContentTestingRelatedPages = 1124
 )
 
 func TestContentGetSimple_1(t *testing.T) {
@@ -71,5 +73,20 @@ func TestGetContentDownloads_1(t *testing.T) {
 				t.Errorf("Expected download poster: %s, got %s", ContentTestingPoster, downloads.Downloads[0].Poster)
 			}
 		}
+	}
+}
+
+func TestGetContentRelated_1(t *testing.T) {
+	related, err := GetRelatedContentAll(ContentTestingCategory, ContentTestingName)
+	if err != nil {
+		t.Error(err)
+	}
+	// Since this can change, we need to do at least checks
+	if related.Total < ContentTestingRelatedTotal {
+		t.Errorf("Was unable to find an adequte enough of related content! Expected at least: %d, Got: %d", ContentTestingRelatedTotal, related.Total)
+	}
+
+	if related.Pages < ContentTestingRelatedPages {
+		t.Errorf("Was unable to find an adequte enough of related content pages! Expected at least: %d, Got: %d", ContentTestingRelatedPages, related.Total)
 	}
 }
