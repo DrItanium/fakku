@@ -51,12 +51,20 @@ func TestContentGetReadOnline_1(t *testing.T) {
 }
 
 func TestGetContentDownloads_1(t *testing.T) {
+	downloadPoster := "Jacob"
 	downloads, err := GetContentDownloads("manga", "right-now-while-cleaning-the-pool")
 	if err != nil {
 		t.Error(err)
 	}
-
-	if len(downloads.Total) != 1 {
-		t.Errorf("Expected 1 page, got %d pages", len(downloads.Total))
+	if downloads.Total != 1 {
+		t.Errorf("Expected 1 page, got %d pages", downloads.Total)
+	} else {
+		if len(downloads.Downloads) != 1 {
+			t.Errorf("Expected 1 download, got %d downloads", len(downloads.Downloads))
+		} else {
+			if downloads.Downloads[0].Poster != downloadPoster {
+				t.Errorf("Expected download poster: %s, got %s", downloadPoster, downloads.Downloads[0].Poster)
+			}
+		}
 	}
 }

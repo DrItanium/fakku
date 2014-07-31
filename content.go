@@ -290,12 +290,12 @@ type ContentDownloadsApiFunction struct {
 }
 
 func (a ContentDownloadsApiFunction) ConstructApiFunction() string {
-	return fmt.Sprintf("%s/downloads", a.ContentApiFunction.ConstructApiFunction())
+	return fmt.Sprintf("%s/download", a.ContentApiFunction.ConstructApiFunction())
 }
 
 type DownloadContent struct {
 	Downloads []*Download `json:"downloads"`
-	Total     float64     `json:"Total"`
+	Total     uint        `json:"total"`
 }
 type Download struct {
 	Type          string  `json:"download_type"`
