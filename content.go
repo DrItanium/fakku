@@ -71,7 +71,11 @@ func (c *Content) populateContent(v map[string]interface{}) {
 }
 
 func constructAttributeFields(c map[string]interface{}, field string) []*Attribute {
-	tmp := c[field].([]interface{})
+	try, ok := c[field]
+	if !ok {
+		return nil
+	}
+	tmp := try.([]interface{})
 	size := len(tmp)
 	attrs := make([]*Attribute, size)
 	for i := 0; i < size; i++ {
@@ -293,7 +297,6 @@ type ContentRelatedApiFunction struct {
 
 func (a ContentRelatedApiFunction) ConstructApiFunction() string {
 	base := fmt.Sprintf("%s/related", a.ContentApiFunction.ConstructApiFunction())
-	fmt.Println(base)
 	if a.Page == 0 {
 		return base
 	} else {
