@@ -4,43 +4,49 @@ import (
 	"testing"
 )
 
-func TestContentGetSimple_1(t *testing.T) {
+const (
 	// Test the manga listed in the API docs
-	compareName := "Right now, while cleaning the pool"
-	compareUrl := "http://www.fakku.net/manga/right-now-while-cleaning-the-pool"
-	compareTag := "Vanilla"
-	c, err := GetContentInformation("manga", "right-now-while-cleaning-the-pool")
+	ContentTestingCategory    = "manga"
+	ContentTestingName        = "right-now-while-cleaning-the-pool"
+	ContentTestingUrl         = "http://www.fakku.net/manga/right-now-while-cleaning-the-pool"
+	ContentTestingTag         = "Vanilla"
+	ContentTestingDisplayName = "Right now, while cleaning the pool"
+	ContentTestingPoster      = "Jacob"
+)
+
+func TestContentGetSimple_1(t *testing.T) {
+	c, err := GetContentInformation(ContentTestingCategory, ContentTestingName)
 	if err != nil {
 		t.Error(err)
 	}
-	if c.Name != compareName {
-		t.Errorf("Expected: %s, Got: %s", compareName, c.Name)
+	if c.Name != ContentTestingDisplayName {
+		t.Errorf("Expected: %s, Got: %s", ContentTestingDisplayName, c.Name)
 	}
-	if c.Url != compareUrl {
-		t.Errorf("Expected: %s, Got: %s", compareUrl, c.Url)
+	if c.Url != ContentTestingUrl {
+		t.Errorf("Expected: %s, Got: %s", ContentTestingUrl, c.Url)
 	}
 	foundTag := false
 	for i := 0; i < len(c.Tags); i++ {
-		if c.Tags[i].Attribute == compareTag {
+		if c.Tags[i].Attribute == ContentTestingTag {
 			foundTag = true
 			break
 		}
 	}
 	if !foundTag {
-		t.Errorf("Didn't find tag %s but should have!", compareTag)
+		t.Errorf("Didn't find tag %s but should have!", ContentTestingTag)
 	}
 }
 
 func TestContentGetComments_1(t *testing.T) {
 	/* tests to make sure that the functions work */
-	_, err := GetContentComments("manga", "right-now-while-cleaning-the-pool")
+	_, err := GetContentComments(ContentTestingCategory, ContentTestingName)
 	if err != nil {
 		t.Error(err)
 	}
 }
 
 func TestContentGetReadOnline_1(t *testing.T) {
-	onlineContent, err := GetContentReadOnline("manga", "right-now-while-cleaning-the-pool")
+	onlineContent, err := GetContentReadOnline(ContentTestingCategory, ContentTestingName)
 	if err != nil {
 		t.Error(err)
 	}
@@ -51,8 +57,7 @@ func TestContentGetReadOnline_1(t *testing.T) {
 }
 
 func TestGetContentDownloads_1(t *testing.T) {
-	downloadPoster := "Jacob"
-	downloads, err := GetContentDownloads("manga", "right-now-while-cleaning-the-pool")
+	downloads, err := GetContentDownloads(ContentTestingCategory, ContentTestingName)
 	if err != nil {
 		t.Error(err)
 	}
@@ -62,8 +67,8 @@ func TestGetContentDownloads_1(t *testing.T) {
 		if len(downloads.Downloads) != 1 {
 			t.Errorf("Expected 1 download, got %d downloads", len(downloads.Downloads))
 		} else {
-			if downloads.Downloads[0].Poster != downloadPoster {
-				t.Errorf("Expected download poster: %s, got %s", downloadPoster, downloads.Downloads[0].Poster)
+			if downloads.Downloads[0].Poster != ContentTestingPoster {
+				t.Errorf("Expected download poster: %s, got %s", ContentTestingPoster, downloads.Downloads[0].Poster)
 			}
 		}
 	}
