@@ -3,8 +3,6 @@ package fakku
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"strconv"
 )
 
@@ -86,16 +84,10 @@ func PaginateString(s string, page uint) string {
 	return fmt.Sprintf("%s/page/%d", s, page)
 }
 
-type ApiFunction interface {
-	ConstructApiFunction() string
-}
-
 type ContentApiFunction struct {
 	Category string
 	Name     string
 }
-
-var ApiHeader = "https://api.fakku.net/"
 
 func (a ContentApiFunction) ConstructApiFunction() string {
 	return fmt.Sprintf("%s/%s/%s", ApiHeader, a.Category, a.Name)
@@ -118,23 +110,6 @@ func (a ContentCommentApiFunction) ConstructApiFunction() string {
 			return PaginateString(base, a.Page)
 		}
 	}
-}
-
-func ApiCall(url ApiFunction, c interface{}) error {
-	resp, err := http.Get(url.ConstructApiFunction())
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal(body, &c)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func GetContentInformation(category, name string) (*Content, error) {
