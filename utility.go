@@ -18,7 +18,7 @@ type ErrorStatus struct {
 	KnownError   bool
 }
 
-func (e *ErrorStatus) Error() string {
+func (e ErrorStatus) Error() string {
 	return fmt.Sprintf("Error %d: %s", e.ErrorCode, e.ErrorMessage)
 }
 
@@ -42,9 +42,9 @@ func ApiCall(url ApiFunction, c interface{}) error {
 	case 404, 451, 503:
 		// right now just harvest the error code
 		var ec ErrorStatus
+		err = json.Unmarshal(body, &ec)
 		ec.KnownError = true
 		ec.ErrorCode = resp.StatusCode
-		err = json.Unmarshal(body, &ec)
 		if err != nil {
 			return err
 		} else {

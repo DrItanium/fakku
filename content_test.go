@@ -101,6 +101,16 @@ func TestDMCATakedown_1(t *testing.T) {
 	if err == nil {
 		t.Error("DMCA takedown notice not found!")
 	} else {
-		t.Log(err)
+		switch err.(type) {
+		case ErrorStatus:
+			q := err.(ErrorStatus)
+			if q.KnownError {
+				t.Log(err)
+			} else {
+				t.Error(err)
+			}
+		default:
+			t.Error(err)
+		}
 	}
 }
