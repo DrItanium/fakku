@@ -102,8 +102,8 @@ func TestDMCATakedown_1(t *testing.T) {
 		t.Error("DMCA takedown notice not found!")
 	} else {
 		switch err.(type) {
-		case ErrorStatus:
-			q := err.(ErrorStatus)
+		case *ErrorStatus: // FUUUUU it is a pointer!
+			q := err.(*ErrorStatus)
 			if q.KnownError {
 				t.Log(err)
 			} else {
