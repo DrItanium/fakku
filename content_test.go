@@ -6,14 +6,15 @@ import (
 
 const (
 	// Test the manga listed in the API docs
-	ContentTestingCategory     = "manga"
-	ContentTestingName         = "right-now-while-cleaning-the-pool"
-	ContentTestingUrl          = "http://www.fakku.net/manga/right-now-while-cleaning-the-pool"
-	ContentTestingTag          = "Vanilla"
-	ContentTestingDisplayName  = "Right now, while cleaning the pool"
-	ContentTestingPoster       = "Jacob"
-	ContentTestingRelatedTotal = 11236
-	ContentTestingRelatedPages = 1124
+	ContentTestingCategory           = "manga"
+	ContentTestingName               = "right-now-while-cleaning-the-pool"
+	ContentTestingUrl                = "http://www.fakku.net/manga/right-now-while-cleaning-the-pool"
+	ContentTestingTag                = "Vanilla"
+	ContentTestingDisplayName        = "Right now, while cleaning the pool"
+	ContentTestingDisplayNameRelated = "Before the Pool Opens"
+	ContentTestingPoster             = "Jacob"
+	ContentTestingRelatedTotal       = 11236
+	ContentTestingRelatedPages       = 1124
 )
 
 func TestContentGetSimple_1(t *testing.T) {
@@ -80,6 +81,9 @@ func TestGetContentRelated_1(t *testing.T) {
 	related, err := GetRelatedContentAll(ContentTestingCategory, ContentTestingName)
 	if err != nil {
 		t.Error(err)
+	}
+	if related.Related[0].Name != ContentTestingDisplayNameRelated {
+		t.Errorf("First entry in related content was %s not %s as expected!", related.Related[0].Name, ContentTestingDisplayNameRelated)
 	}
 	// Since this can change, we need to do at least checks
 	if related.Total < ContentTestingRelatedTotal {
