@@ -116,14 +116,6 @@ func (a ContentCommentApiFunction) ConstructApiFunction() string {
 	}
 }
 
-type ContentDownloadsApiFunction struct {
-	ContentApiFunction
-}
-
-func (a ContentDownloadsApiFunction) ConstructApiFunction() string {
-	return fmt.Sprintf("%s/downloads", a.ContentApiFunction.ConstructApiFunction())
-}
-
 func ApiCall(url ApiFunction, c interface{}) error {
 	resp, err := http.Get(url.ConstructApiFunction())
 	if err != nil {
@@ -276,4 +268,41 @@ func GetContentReadOnline(category, name string) (*ReadOnlineContent, error) {
 	} else {
 		return &c, nil
 	}
+}
+
+func GetContentDownloads(category, name string) (*DownloadContent, error) {
+	var c DownloadContent
+	url := ContentDownloadsApiFunction{
+		ContentApiFunction: ContentApiFunction{
+			Category: category,
+			Name:     name,
+		},
+	}
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
+
+type ContentDownloadsApiFunction struct {
+	ContentApiFunction
+}
+
+func (a ContentDownloadsApiFunction) ConstructApiFunction() string {
+	return fmt.Sprintf("%s/downloads", a.ContentApiFunction.ConstructApiFunction())
+}
+
+type DownloadContent struct {
+	Downloads []*Download `json:"downloads"`
+	Total     float64     `json:"Total"`
+}
+type Download struct {
+	Type          string  `json:"download_type"`
+	Url           string  `json:"download_url"`
+	Info          string  `json:"download_info"`
+	DownloadCount float64 `json:"download_count"`
+	Time          float64 `json:"download_time"`
+	Poster        string  `json:"download_poster"`
+	PosterUrl     string  `json:"download_poster_url"`
 }

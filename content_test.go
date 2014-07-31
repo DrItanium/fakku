@@ -49,3 +49,14 @@ func TestContentGetReadOnline_1(t *testing.T) {
 		t.Errorf("Expected 25 pages, got %d pages", len(onlineContent.Pages))
 	}
 }
+
+func TestGetContentDownloads_1(t *testing.T) {
+	downloads, err := GetContentDownloads("manga", "right-now-while-cleaning-the-pool")
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(downloads.Total) != 1 {
+		t.Errorf("Expected 1 page, got %d pages", len(downloads.Total))
+	}
+}
