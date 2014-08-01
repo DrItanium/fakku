@@ -54,3 +54,7 @@ func ApiCall(url ApiFunction, c interface{}) error {
 		return &ErrorStatus{ErrorCode: resp.StatusCode, ErrorMessage: resp.Status, KnownError: false}
 	}
 }
+
+func PaginateString(s string, page uint) string {
+	return fmt.Sprintf("%s/page/%d", s, page)
+}

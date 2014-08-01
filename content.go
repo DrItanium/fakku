@@ -84,10 +84,6 @@ func constructAttributeFields(c map[string]interface{}, field string) []*Attribu
 	return attrs
 }
 
-func PaginateString(s string, page uint) string {
-	return fmt.Sprintf("%s/page/%d", s, page)
-}
-
 type ContentApiFunction struct {
 	Category string
 	Name     string

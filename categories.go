@@ -99,3 +99,40 @@ func GetTags() (*Tags, error) {
 		return &c, nil
 	}
 }
+
+type ContentSearch struct {
+	Content []*Content `json:"content"`
+	Total   uint       `json:"total"`
+	Pages   uint       `json:"pages"`
+}
+
+type ContentSearchApiFunction struct {
+	Terms string
+	Page  uint
+}
+
+func (c ContentSearchApiFunction) ConstructApiFunction() string {
+	base := fmt.Sprintf("%s/search/%s", ApiHeader, c.Terms)
+	if c.Page == 0 {
+		return base
+	} else {
+		return PaginateString(base, c.Page)
+	}
+}
+
+func GetContentSearchResultsPage(terms string, page uint) (*ContentSearch, error) {
+	var c ContentSearch
+	url := ContentSearchApiFunction{
+		Terms: terms,
+		Page:  page,
+	}
+	if err := ApiCall(url, c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
+
+func GetContentSearchResults(terms string) (*ContentSearch, error) {
+	return GetContentSearchResultsPage(terms, 0)
+}
