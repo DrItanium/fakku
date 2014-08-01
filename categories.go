@@ -72,3 +72,30 @@ func (c *CategoryIndex) UnmarshalJSON(b []byte) error {
 	}
 	return nil
 }
+
+type Tags struct {
+	Tags  []*Tag `json:"tags"`
+	Total uint   `json:"total"`
+}
+
+type Tag struct {
+	Name        string `json:"tag_name"`
+	Url         string `json::"tag_url"`
+	ImageSample string `json:"tag_image_sample"`
+	Description string `json:"tag_description"`
+}
+type TagsApiFunction struct{}
+
+func (c TagsApiFunction) ConstructApiFunction() string {
+	return fmt.Sprintf("%s/tags", ApiHeader)
+}
+
+func GetTags() (*Tags, error) {
+	var c Tags
+	url := TagsApiFunction{}
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
