@@ -114,3 +114,45 @@ type UserAchievement struct {
 	Class       string `json:"achievement_class"`
 	Date        uint   `json:"achievement_date"`
 }
+
+type UserPostsApiFunction struct {
+	UserApiFunction
+	SupportsPagination
+}
+
+func (c UserPostsApiFunction) ConstructApiFunction() string {
+	base := fmt.Sprintf("%s/posts", c.UserApiFunction.ConstructApiFunction())
+	return PaginateString(base, c.Page)
+}
+
+func GetUserPostsPage(user string, page uint) (*UserPosts, error) {
+	var c UserPosts
+	url := UserPostsApiFunction{
+		UserApiFunction:    UserApiFunction{Name: user},
+		SupportsPagination: SupportsPagination{Page: page},
+	}
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
+
+func GetUserPosts(user string) (*UserPosts, error) {
+	return GetUserPostsPage(user, 0)
+}
+
+type UserPosts struct {
+	Posts []*UserPost `json:"posts"`
+	Total uint        `json:"total"`
+	Pages uint        `json:"pages"`
+}
+
+type UserPost struct {
+	Id         uint   `json:"post_id"`
+	Date       uint   `json:"post_date"`
+	Text       string `json:"post_text"`
+	Reputation int    `json:"post_reputation"`
+	TopicTitle string `json:"post_topic_title"`
+	TopicUrl   string `json:"post_topic_url"`
+}

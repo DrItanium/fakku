@@ -49,3 +49,14 @@ func TestGetUserAchievements_1(t *testing.T) {
 		t.Errorf("Didn't find achievement: %s!", TestAchievementName)
 	}
 }
+
+func TestGetUserPosts_1(t *testing.T) {
+	posts, err := GetUserPosts(TestUserName)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if posts.Total < 4554 {
+		t.Error("Number of user posts is not correct!")
+	}
+}
