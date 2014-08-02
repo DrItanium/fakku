@@ -54,6 +54,24 @@ type Topic struct {
 	PosterUrl   string `json:"topic_poster_url"`
 }
 
+func (t *Topic) populateTopic(c map[string]interface{}) {
+	t.Title = c["topic_title"].(string)
+	t.Url = c["topic_url"].(string)
+	t.Time = uint(c["topic_time"].(float64))
+	t.FirstPostId = uint(c["topic_first_post_id"].(float64))
+	t.LastPostId = uint(c["topic_last_post_id"].(float64))
+	if _, ok := c["front_page"]; ok {
+		t.FrontPage = uint(c["front_page"].(float64))
+	}
+	t.Status = uint(c["topic_status"].(float64))
+	if _, ok := c["topic_vote"]; ok {
+		t.Vote = uint(c["topic_vote"].(float64))
+	}
+	t.Type = uint(c["topic_type"].(float64))
+	t.Poster = c["topic_poster"].(string)
+	t.PosterUrl = c["topic_poster_url"].(string)
+}
+
 type ForumTopicsApiFunction struct {
 	Forum string
 	SupportsPagination

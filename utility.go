@@ -23,6 +23,14 @@ type ErrorStatus struct {
 	KnownError   bool
 }
 
+type UnknownEntry struct {
+	Message string
+}
+
+func (e UnknownEntry) Error() string {
+	return e.Message
+}
+
 func (e ErrorStatus) Error() string {
 	return fmt.Sprintf("Error %d: %s", e.ErrorCode, e.ErrorMessage)
 }
