@@ -53,3 +53,33 @@ type Topic struct {
 	Poster      string `json:"topic_poster"`
 	PosterUrl   string `json:"topic_poster_url"`
 }
+
+type ForumTopicsApiFunction struct {
+	Forum string
+	Page  uint
+}
+
+func (c ForumTopicsApiFunction) ConstructApiFunction() string {
+	base := fmt.Sprintf("%s/forums/%s", ApiHeader, c.Forum)
+	return PaginateString(base, c.Page)
+}
+func GetForumTopics(forum string) (*ForumTopics, error) {
+	return GetForumTopicsPage(forum, 0)
+}
+func GetForumTopicsPage(forum string, page uint) (*ForumTopics, error) {
+	var c ForumTopics
+	url := ForumTopicsApiFunction{Forum: forum, Page: page}
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
+
+type ForumTopics struct {
+	Forum  *Forum   `json:"forum"`
+	Topics []*Topic `json:"topics"`
+	Total  uint     `json:"total"`
+	Page   uint     `json:"page"`
+	Pages  uint     `json:"pages"`
+}
