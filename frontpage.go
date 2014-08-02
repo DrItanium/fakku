@@ -60,3 +60,51 @@ func (c *FrontPagePosts) UnmarshalJSON(b []byte) error {
 	}
 	return nil
 }
+
+type FrontPagePollApiFunction struct{}
+
+func (c FrontPagePollApiFunction) ConstructApiFunction() string {
+	return fmt.Sprintf("%s/poll", ApiHeader)
+}
+
+func GetFrontPagePoll() (*FrontPagePoll, error) {
+	var c FrontPagePoll
+	url := FrontPagePollApiFunction{}
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
+
+type FrontPagePoll struct {
+	Question string        `json:"poll_question"`
+	Url      string        `json:"poll_url"`
+	Options  []*PollOption `json:"poll_options"`
+}
+
+type PollOption struct {
+	Text  string `json:"option_text"`
+	Votes uint   `json:"option_votes"`
+}
+
+func (c *FrontPagePoll) UnmarshalJSON(b []byte) error {
+	var f interface{}
+	json.Unmarshal(b, &f)
+	m := f.(map[string]interface{})
+	q := m["poll"].(map[string]interface{})
+	c.Question = q["poll_question"].(string)
+	c.Url = q["poll_url"].(string)
+	tmp := q["poll_options"]
+	ops := tmp.([]interface{})
+	c.Options = make([]*PollOption, len(ops))
+	for i := 0; i < len(ops); i++ {
+		lookup := ops[i].(map[string]interface{})
+		option := &PollOption{
+			Text:  lookup["option_text"].(string),
+			Votes: uint(lookup["option_votes"].(float64)),
+		}
+		c.Options[i] = option
+	}
+	return nil
+}

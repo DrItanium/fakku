@@ -8,3 +8,10 @@ func TestGetFrontPagePosts_1(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestGetFrontPagePoll_1(t *testing.T) {
+	_, err := GetFrontPagePoll()
+	if err != nil {
+		t.Error(err)
+	}
+}
