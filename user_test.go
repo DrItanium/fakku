@@ -72,3 +72,14 @@ func TestGetUserTopics_1(t *testing.T) {
 		t.Errorf("Expected at least 1016 topics, got %d", topics.Total)
 	}
 }
+
+func TestGetUserComments_1(t *testing.T) {
+	comments, err := GetUserComments(TestUserName)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if comments.Total < 116 {
+		t.Errorf("Expected at least 116 comments, got %d", comments.Total)
+	}
+}

@@ -202,3 +202,46 @@ type UserTopic struct {
 	Poster      string `json:"topic_poster"`
 	PosterUrl   string `json:"topic_poster_url"`
 }
+type UserCommentsApiFunction struct {
+	UserApiFunction
+	SupportsPagination
+}
+
+func (c UserCommentsApiFunction) ConstructApiFunction() string {
+	base := fmt.Sprintf("%s/comments", c.UserApiFunction.ConstructApiFunction())
+	return PaginateString(base, c.Page)
+}
+
+func GetUserCommentsPage(user string, page uint) (*UserComments, error) {
+	var c UserComments
+	url := UserCommentsApiFunction{
+		UserApiFunction:    UserApiFunction{Name: user},
+		SupportsPagination: SupportsPagination{Page: page},
+	}
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+
+}
+
+func GetUserComments(user string) (*UserComments, error) {
+	return GetUserCommentsPage(user, 0)
+}
+
+type UserComments struct {
+	Comments []*UserComment `json:"comments"`
+	Total    uint           `json:"total"`
+	Pages    uint           `json:"pages"`
+}
+
+type UserComment struct {
+	Id          uint   `json:"comment_id"`
+	AttachedId  uint   `json:"comment_attached_id"`
+	Reputation  int    `json:"comment_reputation"`
+	Text        string `json:"comment_string"`
+	Date        uint   `json:"comment_date"`
+	ContentName string `json:"comment_content_name"`
+	ContentUrl  string `json:"comment_content_url"`
+}
