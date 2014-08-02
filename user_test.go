@@ -61,3 +61,14 @@ func TestGetUserPosts_1(t *testing.T) {
 		t.Error("Number of user posts is not correct!")
 	}
 }
+
+func TestGetUserTopics_1(t *testing.T) {
+	topics, err := GetUserTopics(TestUserName)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if topics.Total < 1016 {
+		t.Errorf("Expected at least 1016 topics, got %d", topics.Total)
+	}
+}

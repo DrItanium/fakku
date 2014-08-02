@@ -156,3 +156,49 @@ type UserPost struct {
 	TopicTitle string `json:"post_topic_title"`
 	TopicUrl   string `json:"post_topic_url"`
 }
+
+type UserTopicsApiFunction struct {
+	UserApiFunction
+	SupportsPagination
+}
+
+func (c UserTopicsApiFunction) ConstructApiFunction() string {
+	base := fmt.Sprintf("%s/topics", c.UserApiFunction.ConstructApiFunction())
+	return PaginateString(base, c.Page)
+}
+
+func GetUserTopicsPage(user string, page uint) (*UserTopics, error) {
+	var c UserTopics
+	url := UserTopicsApiFunction{
+		UserApiFunction:    UserApiFunction{Name: user},
+		SupportsPagination: SupportsPagination{Page: page},
+	}
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
+
+func GetUserTopics(user string) (*UserTopics, error) {
+	return GetUserTopicsPage(user, 0)
+}
+
+type UserTopics struct {
+	Topics []*UserTopic `json:"topics"`
+	Total  uint         `json:"total"`
+	Pages  uint         `json:"pages"`
+}
+
+type UserTopic struct {
+	Title       string `json:"topic_title"`
+	Url         string `json:"topic_url"`
+	Time        uint   `json:"topic_time"`
+	Replies     uint   `json:"topic_replies"`
+	Status      uint   `json:"topic_status"`
+	Poll        uint   `json:"topic_poll"`
+	LastPostId  uint   `json:"topic_last_post_id"`
+	PostPreview string `json:"topic_post_preview"`
+	Poster      string `json:"topic_poster"`
+	PosterUrl   string `json:"topic_poster_url"`
+}
