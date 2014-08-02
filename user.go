@@ -59,3 +59,58 @@ func (c UserFavoritesApiFunction) ConstructApiFunction() string {
 	base := fmt.Sprintf("%s/favorites", c.UserApiFunction.ConstructApiFunction())
 	return PaginateString(base, c.Page)
 }
+
+func GetUserFavoritesPage(user string, page uint) (*UserFavorites, error) {
+	var c UserFavorites
+	url := UserFavoritesApiFunction{
+		UserApiFunction:    UserApiFunction{Name: user},
+		SupportsPagination: SupportsPagination{Page: page},
+	}
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
+
+func GetUserFavorites(user string) (*UserFavorites, error) {
+	return GetUserFavoritesPage(user, 0)
+}
+
+type UserFavorites struct {
+	Favorites []*Content `json:"favorites"`
+	Total     uint       `json:"total"`
+	Pages     uint       `json:"pages"`
+}
+
+type UserAchievementsApiFunction struct {
+	UserApiFunction
+}
+
+func (c UserAchievementsApiFunction) ConstructApiFunction() string {
+	return fmt.Sprintf("%s/achievements", c.UserApiFunction.ConstructApiFunction())
+}
+
+func GetUserAchievements(user string) (*UserAchievements, error) {
+	var c UserAchievements
+	url := UserAchievementsApiFunction{
+		UserApiFunction: UserApiFunction{Name: user},
+	}
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
+
+type UserAchievements struct {
+	Achievements []*UserAchievement `json:"achievements"`
+	Total        uint               `json:"total"`
+}
+type UserAchievement struct {
+	Name        string `json:"achievement_name"`
+	Description string `json:"achievement_description"`
+	Icon        string `json:"achievement_icon"`
+	Class       string `json:"achievement_class"`
+	Date        uint   `json:"achievement_date"`
+}
