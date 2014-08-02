@@ -35,5 +35,21 @@ type Forum struct {
 	Url         string `json:"forum_url"`
 	Posts       uint   `json:"forum_posts"`
 	Topics      uint   `json:"forum_topics"`
+	Silent      uint   `json:"forum_silent"`
+	RecentTopic *Topic `json:"forum_recent_topic"`
 	// There are more....
+}
+
+type Topic struct {
+	Title       string `json:"topic_title"`
+	Url         string `json:"topic_url"`
+	Time        uint   `json:"topic_time"`
+	FirstPostId uint   `json:"topic_first_post_id"`
+	LastPostId  uint   `json:"topic_last_post_id"`
+	FrontPage   uint   `json:"front_page"`
+	Status      uint   `json:"topic_status"`
+	Vote        uint   `json:"topic_vote"`
+	Type        uint   `json:"topic_type"`
+	Poster      string `json:"topic_poster"`
+	PosterUrl   string `json:"topic_poster_url"`
 }
