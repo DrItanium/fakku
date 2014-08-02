@@ -35,3 +35,14 @@ func TestForumCategoriesApiFunction_2(t *testing.T) {
 		t.Error("Didn't get page 11")
 	}
 }
+
+func TestForumPostsApiFunction_1(t *testing.T) {
+	output, err := GetForumPosts("random", "important-quotes")
+	if err != nil {
+		t.Error(err)
+	}
+
+	if output.Topic.Title != "Important Quotes" {
+		t.Error("Didn't get the important quotes topic")
+	}
+}

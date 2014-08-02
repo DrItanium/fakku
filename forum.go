@@ -83,3 +83,47 @@ type ForumTopics struct {
 	Page   uint     `json:"page"`
 	Pages  uint     `json:"pages"`
 }
+
+type ForumPost struct {
+	Id         uint         `json:"post_id"`
+	Date       uint         `json:"post_date"`
+	Poster     string       `json:"post_poster"`
+	PosterUrl  string       `json:"post_poster_url"`
+	Text       string       `json:"post_text"`
+	Image      string       `json:"post_image"`
+	Thumb      string       `json:"post_thumb"`
+	Reputation int          `json:"post_reputation"`
+	User       *UserProfile `json:"post_user"`
+}
+
+type ForumPosts struct {
+	Topic *Topic       `json:"topic"`
+	Forum *Forum       `json:"forum"`
+	Posts []*ForumPost `json:"posts"`
+	Total uint         `json:"total"`
+	Page  uint         `json:"page"`
+	Pages uint         `json:"pages"`
+}
+
+type ForumPostsApiFunction struct {
+	Forum string
+	Topic string
+	Page  uint
+}
+
+func (c ForumPostsApiFunction) ConstructApiFunction() string {
+	base := fmt.Sprintf("%s/forums/%s/%s", ApiHeader, c.Forum, c.Topic)
+	return PaginateString(base, c.Page)
+}
+func GetForumPosts(forum, topic string) (*ForumPosts, error) {
+	return GetForumPostsPage(forum, topic, 0)
+}
+func GetForumPostsPage(forum, topic string, page uint) (*ForumPosts, error) {
+	var c ForumPosts
+	url := ForumPostsApiFunction{Forum: forum, Topic: topic, Page: page}
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
