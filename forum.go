@@ -56,7 +56,7 @@ type Topic struct {
 
 type ForumTopicsApiFunction struct {
 	Forum string
-	Page  uint
+	SupportsPagination
 }
 
 func (c ForumTopicsApiFunction) ConstructApiFunction() string {
@@ -68,7 +68,10 @@ func GetForumTopics(forum string) (*ForumTopics, error) {
 }
 func GetForumTopicsPage(forum string, page uint) (*ForumTopics, error) {
 	var c ForumTopics
-	url := ForumTopicsApiFunction{Forum: forum, Page: page}
+	url := ForumTopicsApiFunction{
+		Forum:              forum,
+		SupportsPagination: SupportsPagination{Page: page},
+	}
 	if err := ApiCall(url, &c); err != nil {
 		return nil, err
 	} else {
@@ -108,7 +111,7 @@ type ForumPosts struct {
 type ForumPostsApiFunction struct {
 	Forum string
 	Topic string
-	Page  uint
+	SupportsPagination
 }
 
 func (c ForumPostsApiFunction) ConstructApiFunction() string {
@@ -120,7 +123,11 @@ func GetForumPosts(forum, topic string) (*ForumPosts, error) {
 }
 func GetForumPostsPage(forum, topic string, page uint) (*ForumPosts, error) {
 	var c ForumPosts
-	url := ForumPostsApiFunction{Forum: forum, Topic: topic, Page: page}
+	url := ForumPostsApiFunction{
+		Forum:              forum,
+		Topic:              topic,
+		SupportsPagination: SupportsPagination{Page: page},
+	}
 	if err := ApiCall(url, &c); err != nil {
 		return nil, err
 	} else {

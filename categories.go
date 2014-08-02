@@ -108,7 +108,7 @@ type ContentSearch struct {
 
 type ContentSearchApiFunction struct {
 	Terms string
-	Page  uint
+	SupportsPagination
 }
 
 func (c ContentSearchApiFunction) ConstructApiFunction() string {
@@ -119,8 +119,8 @@ func (c ContentSearchApiFunction) ConstructApiFunction() string {
 func GetContentSearchResultsPage(terms string, page uint) (*ContentSearch, error) {
 	var c ContentSearch
 	url := ContentSearchApiFunction{
-		Terms: terms,
-		Page:  page,
+		Terms:              terms,
+		SupportsPagination: SupportsPagination{Page: page},
 	}
 	if err := ApiCall(url, c); err != nil {
 		return nil, err

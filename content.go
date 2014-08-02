@@ -96,7 +96,7 @@ func (a ContentApiFunction) ConstructApiFunction() string {
 type ContentCommentApiFunction struct {
 	ContentApiFunction
 	TopComments bool
-	Page        uint
+	SupportsPagination
 }
 
 func (a ContentCommentApiFunction) ConstructApiFunction() string {
@@ -110,9 +110,8 @@ func (a ContentCommentApiFunction) ConstructApiFunction() string {
 
 func GetContentInformation(category, name string) (*Content, error) {
 	var c Content
-	q := ContentApiFunction{Category: category, Name: name}
-	err := ApiCall(q, &c)
-	if err != nil {
+	url := ContentApiFunction{Category: category, Name: name}
+	if err := ApiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil
@@ -142,7 +141,7 @@ func GetContentCommentsPage(category, name string, page uint) (*Comments, error)
 			Category: category,
 			Name:     name,
 		},
-		Page: page,
+		SupportsPagination: SupportsPagination{Page: page},
 	}
 	return getContentCommentsGeneric(url)
 }
@@ -284,7 +283,7 @@ type Download struct {
 
 type ContentRelatedApiFunction struct {
 	ContentApiFunction
-	Page uint
+	SupportsPagination
 }
 
 func (a ContentRelatedApiFunction) ConstructApiFunction() string {
@@ -309,7 +308,7 @@ func GetRelatedContent(category, name string, page uint) (*RelatedContent, error
 			Category: category,
 			Name:     name,
 		},
-		Page: page,
+		SupportsPagination: SupportsPagination{Page: page},
 	}
 	if err := ApiCall(url, &c); err != nil {
 		return nil, err

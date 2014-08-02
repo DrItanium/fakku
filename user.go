@@ -4,17 +4,17 @@ import (
 	"fmt"
 )
 
-type UserProfileApiFunction struct {
+type UserApiFunction struct {
 	Name string
 }
 
-func (c UserProfileApiFunction) ConstructApiFunction() string {
+func (c UserApiFunction) ConstructApiFunction() string {
 	return fmt.Sprintf("%s/users/%s", ApiHeader, c.Name)
 }
 
 func GetUserProfile(name string) (*UserProfile, error) {
 	var c User
-	url := UserProfileApiFunction{Name: name}
+	url := UserApiFunction{Name: name}
 	if err := ApiCall(url, &c); err != nil {
 		return nil, err
 	} else {
@@ -48,4 +48,14 @@ type UserProfile struct {
 	CommentReputation int    `json:"user_comment_reputation"`
 	Gold              uint   `json:"user_gold"`
 	Online            uint   `json:"user_online"`
+}
+
+type UserFavoritesApiFunction struct {
+	UserApiFunction
+	SupportsPagination
+}
+
+func (c UserFavoritesApiFunction) ConstructApiFunction() string {
+	base := fmt.Sprintf("%s/favorites", c.UserApiFunction.ConstructApiFunction())
+	return PaginateString(base, c.Page)
 }

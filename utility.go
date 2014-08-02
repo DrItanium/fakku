@@ -13,6 +13,10 @@ type ApiFunction interface {
 	ConstructApiFunction() string
 }
 
+type SupportsPagination struct {
+	Page uint
+}
+
 type ErrorStatus struct {
 	ErrorCode    int
 	ErrorMessage string `json:"error"`
@@ -55,7 +59,6 @@ func ApiCall(url ApiFunction, c interface{}) error {
 		return &ErrorStatus{ErrorCode: resp.StatusCode, ErrorMessage: resp.Status, KnownError: false}
 	}
 }
-
 func PaginateString(s string, page uint) string {
 	// If page is zero then it is meaningless so just return the string
 	if page == 0 {
