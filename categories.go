@@ -113,11 +113,7 @@ type ContentSearchApiFunction struct {
 
 func (c ContentSearchApiFunction) ConstructApiFunction() string {
 	base := fmt.Sprintf("%s/search/%s", ApiHeader, c.Terms)
-	if c.Page == 0 {
-		return base
-	} else {
-		return PaginateString(base, c.Page)
-	}
+	return PaginateString(base, c.Page)
 }
 
 func GetContentSearchResultsPage(terms string, page uint) (*ContentSearch, error) {

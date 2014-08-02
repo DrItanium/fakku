@@ -12,6 +12,7 @@ var ApiHeader = "https://api.fakku.net/"
 type ApiFunction interface {
 	ConstructApiFunction() string
 }
+
 type ErrorStatus struct {
 	ErrorCode    int
 	ErrorMessage string `json:"error"`
@@ -56,5 +57,10 @@ func ApiCall(url ApiFunction, c interface{}) error {
 }
 
 func PaginateString(s string, page uint) string {
-	return fmt.Sprintf("%s/page/%d", s, page)
+	// If page is zero then it is meaningless so just return the string
+	if page == 0 {
+		return s
+	} else {
+		return fmt.Sprintf("%s/page/%d", s, page)
+	}
 }

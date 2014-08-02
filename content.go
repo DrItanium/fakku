@@ -104,11 +104,7 @@ func (a ContentCommentApiFunction) ConstructApiFunction() string {
 	if a.TopComments {
 		return fmt.Sprintf("%s/top", base)
 	} else {
-		if a.Page == 0 {
-			return base
-		} else {
-			return PaginateString(base, a.Page)
-		}
+		return PaginateString(base, a.Page)
 	}
 }
 
@@ -293,11 +289,7 @@ type ContentRelatedApiFunction struct {
 
 func (a ContentRelatedApiFunction) ConstructApiFunction() string {
 	base := fmt.Sprintf("%s/related", a.ContentApiFunction.ConstructApiFunction())
-	if a.Page == 0 {
-		return base
-	} else {
-		return PaginateString(base, a.Page)
-	}
+	return PaginateString(base, a.Page)
 }
 
 type RelatedContent struct {
