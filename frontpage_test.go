@@ -15,3 +15,11 @@ func TestGetFrontPagePoll_1(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestGetFrontPageFeaturedTopics_1(t *testing.T) {
+	_, err := GetFrontPageFeaturedTopics()
+
+	if err != nil {
+		t.Error(err)
+	}
+}

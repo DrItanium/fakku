@@ -108,3 +108,24 @@ func (c *FrontPagePoll) UnmarshalJSON(b []byte) error {
 	}
 	return nil
 }
+
+type FrontPageFeaturedTopicsApiFunction struct{}
+
+func (c FrontPageFeaturedTopicsApiFunction) ConstructApiFunction() string {
+	return fmt.Sprintf("%s/featured", ApiHeader)
+}
+
+func GetFrontPageFeaturedTopics() (*FrontPageFeaturedTopics, error) {
+	var c FrontPageFeaturedTopics
+	url := FrontPageFeaturedTopicsApiFunction{}
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
+
+type FrontPageFeaturedTopics struct {
+	Topics []*Topic `json:"topics"`
+	Total  uint     `json:"total"`
+}
