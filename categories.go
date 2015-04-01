@@ -45,30 +45,22 @@ func (c *CategoryIndex) UnmarshalJSON(b []byte) error {
 	latest := m["latest"].([]interface{})
 	c.Latest = make([]*Content, len(latest))
 	for i := 0; i < len(latest); i++ {
-		var q Content
-		q.populateContent(latest[i].(map[string]interface{}))
-		c.Latest[i] = &q
+		c.Latest[i] = newContentFromPopulation(latest[i].(map[string]interface{}))
 	}
 	favorites := m["favorites"].([]interface{})
 	c.Favorites = make([]*Content, len(favorites))
 	for i := 0; i < len(favorites); i++ {
-		var q Content
-		q.populateContent(favorites[i].(map[string]interface{}))
-		c.Favorites[i] = &q
+		c.Favorites[i] = newContentFromPopulation(favorites[i].(map[string]interface{}))
 	}
 	popular := m["popular"].([]interface{})
 	c.Popular = make([]*Content, len(popular))
 	for i := 0; i < len(popular); i++ {
-		var q Content
-		q.populateContent(popular[i].(map[string]interface{}))
-		c.Popular[i] = &q
+		c.Popular[i] = newContentFromPopulation(popular[i].(map[string]interface{}))
 	}
 	controversial := m["controversial"].([]interface{})
 	c.Controversial = make([]*Content, len(controversial))
 	for i := 0; i < len(controversial); i++ {
-		var q Content
-		q.populateContent(controversial[i].(map[string]interface{}))
-		c.Controversial[i] = &q
+		c.Popular[i] = newContentFromPopulation(controversial[i].(map[string]interface{}))
 	}
 	return nil
 }

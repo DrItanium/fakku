@@ -33,6 +33,12 @@ type Content struct {
 	}
 }
 
+func newContentFromPopulation(v map[string]interface{}) *Content {
+	var c Content
+	c.populateContent(v)
+	return &c
+}
+
 func (c *Content) UnmarshalJSON(b []byte) error {
 	var f interface{}
 	json.Unmarshal(b, &f)
@@ -326,9 +332,7 @@ func (c *RelatedContent) UnmarshalJSON(b []byte) error {
 	v := related.([]interface{})
 	c.Related = make([]*Content, len(v))
 	for i := 0; i < len(v); i++ {
-		var q Content
-		q.populateContent(v[i].(map[string]interface{}))
-		c.Related[i] = &q
+		c.Related[i] = newContentFromPopulation(v[i].(map[string]interface{}))
 	}
 	c.Total = uint(m["total"].(float64))
 	c.Pages = uint(m["pages"].(float64))
