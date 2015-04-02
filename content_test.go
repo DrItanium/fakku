@@ -64,16 +64,8 @@ func TestGetContentDownloads_1(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if downloads.Total != 1 {
-		t.Errorf("Expected 1 page, got %d pages", downloads.Total)
-	} else {
-		if len(downloads.Downloads) != 1 {
-			t.Errorf("Expected 1 download, got %d downloads", len(downloads.Downloads))
-		} else {
-			if downloads.Downloads[0].Poster != ContentTestingPoster {
-				t.Errorf("Expected download poster: %s, got %s", ContentTestingPoster, downloads.Downloads[0].Poster)
-			}
-		}
+	if downloads.HasDownloads() && downloads.Total != uint(len(downloads.Downloads)) {
+		t.Errorf("Expected %d download pages, but got %d instead!", downloads.Total, len(downloads.Downloads))
 	}
 }
 
@@ -118,17 +110,12 @@ func TestContentDoesntExist_1(t *testing.T) {
 	_, err := GetContentReadOnline(CategoryManga, "renai-sample-ch01-english")
 	if err == nil {
 		// try a second one since this is a little hard to test :/
-		t.Fatal("Content does exist!")
+		t.Fatal("Did not fail as expected!")
 	}
-	switch err.(type) {
-	case *ErrorStatus: // FUUUUU it is a pointer!
-		q := err.(*ErrorStatus)
-		if q.KnownError {
-			t.Log(err)
-		} else {
-			t.Error(err)
-		}
-	default:
-		t.Error(err)
+	msg := err.Error()
+	if msg == ErrorContentDoesntExist {
+		t.Log(msg)
+	} else {
+		t.Error(msg)
 	}
 }

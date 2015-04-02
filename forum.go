@@ -25,7 +25,7 @@ type ForumCategories struct {
 }
 type ForumCategory struct {
 	Title  string   `json:"category_title"`
-	Order  string   `json:"category_order"`
+	Order  uint     `json:"category_order"`
 	Forums []*Forum `json:"forums"`
 }
 

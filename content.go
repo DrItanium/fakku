@@ -6,6 +6,12 @@ import (
 	"strconv"
 )
 
+const (
+	ErrorContentDoesntExist = "Content doesn't exist"
+	ErrorUnknownJsonData    = "Got unknown json data back from content request. API Change?"
+	ErrorUnknownJsonLayout  = "Got an unknown layout back from content request. API Change?"
+)
+
 type Attribute struct {
 	Attribute     string `json:"attribute"`
 	AttributeLink string `json:"attribute_link"`
@@ -55,23 +61,23 @@ func (c *Content) UnmarshalJSON(b []byte) error {
 			q := contents.([]interface{})
 			if len(q) == 0 {
 				// doesn't exist
-				return fmt.Errorf("Content doesn't exist")
+				return fmt.Errorf(ErrorContentDoesntExist)
 			} else {
-				return fmt.Errorf("Got unknown json data back from content request. API Change?")
+				return fmt.Errorf(ErrorUnknownJsonData)
 			}
 		default:
-			return fmt.Errorf("Got an unknown layout back from content request. API Change?")
+			return fmt.Errorf(ErrorUnknownJsonLayout)
 		}
 	case []interface{}:
 		q := f.([]interface{})
 		if len(q) == 0 {
 			// doesn't exist
-			return fmt.Errorf("Content doesn't exist")
+			return fmt.Errorf(ErrorContentDoesntExist)
 		} else {
-			return fmt.Errorf("Got unknown json data back from content request. API Change?")
+			return fmt.Errorf(ErrorUnknownJsonData)
 		}
 	default:
-		return fmt.Errorf("Got an unknown layout back from content request. API Change?")
+		return fmt.Errorf(ErrorUnknownJsonLayout)
 	}
 }
 
@@ -314,6 +320,11 @@ type DownloadContent struct {
 	Downloads []*Download `json:"downloads"`
 	Total     uint        `json:"total"`
 }
+
+func (this *DownloadContent) HasDownloads() bool {
+	return this.Total > 0
+}
+
 type Download struct {
 	Type          string  `json:"download_type"`
 	Url           string  `json:"download_url"`
