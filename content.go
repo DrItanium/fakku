@@ -228,10 +228,10 @@ type Comments struct {
 	Total      float64    `json:"total"`
 	Pages      float64    `json:"pages"`
 }
-
+type PageList []Page
 type ReadOnlineContent struct {
-	Content *Content `json:"content"`
-	Pages   []*Page  `json:"pages"`
+	Content Content  `json:"content"`
+	Pages   PageList `json:"pages"`
 }
 
 func (r *ReadOnlineContent) UnmarshalJSON(b []byte) error {
@@ -246,10 +246,10 @@ func (r *ReadOnlineContent) UnmarshalJSON(b []byte) error {
 		m := f.(map[string]interface{})
 		pages := m["pages"]
 		v := pages.(map[string]interface{})
-		r.Pages = make([]*Page, len(v))
+		r.Pages = make([]Page, len(v))
 		for i := 0; i < len(v); i++ {
 			ind := strconv.Itoa(i + 1)
-			r.Pages[i] = NewPage(ind, v[ind].(map[string]interface{}))
+			r.Pages[i].populate(ind, v[ind].(map[string]interface{}))
 		}
 		return nil
 	case []interface{}:
@@ -271,25 +271,23 @@ type Page struct {
 	Image string
 }
 
-func NewPage(id string, c map[string]interface{}) *Page {
-	return &Page{
-		Id:    id,
-		Thumb: c["thumb"].(string),
-		Image: c["image"].(string),
-	}
+func (this *Page) populate(id string, c map[string]interface{}) {
+	this.Id = id
+	this.Thumb = c["thumb"].(string)
+	this.Image = c["image"].(string)
 }
 
-type ContentReadOnlineApiFunction struct {
+type contentReadOnlineApiFunction struct {
 	contentApiFunction
 }
 
-func (a ContentReadOnlineApiFunction) Construct() string {
+func (a contentReadOnlineApiFunction) Construct() string {
 	return fmt.Sprintf("%s/read", a.contentApiFunction.Construct())
 }
 
-func GetContentReadOnline(category, name string) (*ReadOnlineContent, error) {
+func ReadOnline(category, name string) (*ReadOnlineContent, error) {
 	var c ReadOnlineContent
-	url := ContentReadOnlineApiFunction{
+	url := contentReadOnlineApiFunction{
 		contentApiFunction: contentApiFunction{
 			Category: category,
 			Name:     name,
@@ -299,6 +297,15 @@ func GetContentReadOnline(category, name string) (*ReadOnlineContent, error) {
 		return nil, err
 	} else {
 		return &c, nil
+	}
+}
+
+func (this *Content) ReadOnline() (PageList, error) {
+	element, err := ReadOnline(this.Category, this.Name)
+	if err != nil {
+		return nil, err
+	} else {
+		return element.Pages, nil
 	}
 }
 
