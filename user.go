@@ -8,7 +8,7 @@ type UserApiFunction struct {
 	Name string
 }
 
-func (c UserApiFunction) ConstructApiFunction() string {
+func (c UserApiFunction) Construct() string {
 	return fmt.Sprintf("%s/users/%s", ApiHeader, c.Name)
 }
 
@@ -55,8 +55,8 @@ type UserFavoritesApiFunction struct {
 	SupportsPagination
 }
 
-func (c UserFavoritesApiFunction) ConstructApiFunction() string {
-	base := fmt.Sprintf("%s/favorites", c.UserApiFunction.ConstructApiFunction())
+func (c UserFavoritesApiFunction) Construct() string {
+	base := fmt.Sprintf("%s/favorites", c.UserApiFunction.Construct())
 	return PaginateString(base, c.Page)
 }
 
@@ -87,8 +87,8 @@ type UserAchievementsApiFunction struct {
 	UserApiFunction
 }
 
-func (c UserAchievementsApiFunction) ConstructApiFunction() string {
-	return fmt.Sprintf("%s/achievements", c.UserApiFunction.ConstructApiFunction())
+func (c UserAchievementsApiFunction) Construct() string {
+	return fmt.Sprintf("%s/achievements", c.UserApiFunction.Construct())
 }
 
 func GetUserAchievements(user string) (*UserAchievements, error) {
@@ -120,8 +120,8 @@ type UserPostsApiFunction struct {
 	SupportsPagination
 }
 
-func (c UserPostsApiFunction) ConstructApiFunction() string {
-	base := fmt.Sprintf("%s/posts", c.UserApiFunction.ConstructApiFunction())
+func (c UserPostsApiFunction) Construct() string {
+	base := fmt.Sprintf("%s/posts", c.UserApiFunction.Construct())
 	return PaginateString(base, c.Page)
 }
 
@@ -162,8 +162,8 @@ type UserTopicsApiFunction struct {
 	SupportsPagination
 }
 
-func (c UserTopicsApiFunction) ConstructApiFunction() string {
-	base := fmt.Sprintf("%s/topics", c.UserApiFunction.ConstructApiFunction())
+func (c UserTopicsApiFunction) Construct() string {
+	base := fmt.Sprintf("%s/topics", c.UserApiFunction.Construct())
 	return PaginateString(base, c.Page)
 }
 
@@ -207,8 +207,8 @@ type UserCommentsApiFunction struct {
 	SupportsPagination
 }
 
-func (c UserCommentsApiFunction) ConstructApiFunction() string {
-	base := fmt.Sprintf("%s/comments", c.UserApiFunction.ConstructApiFunction())
+func (c UserCommentsApiFunction) Construct() string {
+	base := fmt.Sprintf("%s/comments", c.UserApiFunction.Construct())
 	return PaginateString(base, c.Page)
 }
 

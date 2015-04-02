@@ -9,7 +9,7 @@ type FrontPagePostsApiFunction struct {
 	SupportsPagination
 }
 
-func (c FrontPagePostsApiFunction) ConstructApiFunction() string {
+func (c FrontPagePostsApiFunction) Construct() string {
 	base := fmt.Sprintf("%s/index", ApiHeader)
 	return PaginateString(base, c.Page)
 }
@@ -61,7 +61,7 @@ func (c *FrontPagePosts) UnmarshalJSON(b []byte) error {
 
 type FrontPagePollApiFunction struct{}
 
-func (c FrontPagePollApiFunction) ConstructApiFunction() string {
+func (c FrontPagePollApiFunction) Construct() string {
 	return fmt.Sprintf("%s/poll", ApiHeader)
 }
 
@@ -109,7 +109,7 @@ func (c *FrontPagePoll) UnmarshalJSON(b []byte) error {
 
 type FrontPageFeaturedTopicsApiFunction struct{}
 
-func (c FrontPageFeaturedTopicsApiFunction) ConstructApiFunction() string {
+func (c FrontPageFeaturedTopicsApiFunction) Construct() string {
 	return fmt.Sprintf("%s/featured", ApiHeader)
 }
 

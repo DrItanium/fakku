@@ -16,7 +16,7 @@ const (
 )
 
 type ApiFunction interface {
-	ConstructApiFunction() string
+	Construct() string
 }
 
 type SupportsPagination struct {
@@ -42,7 +42,7 @@ func (e ErrorStatus) Error() string {
 }
 
 func ApiCall(url ApiFunction, c interface{}) error {
-	resp, err := http.Get(url.ConstructApiFunction())
+	resp, err := http.Get(url.Construct())
 	if err != nil {
 		return err
 	}

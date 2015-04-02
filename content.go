@@ -124,7 +124,7 @@ type ContentApiFunction struct {
 	Name     string
 }
 
-func (a ContentApiFunction) ConstructApiFunction() string {
+func (a ContentApiFunction) Construct() string {
 	return fmt.Sprintf("%s/%s/%s", ApiHeader, a.Category, a.Name)
 }
 
@@ -134,8 +134,8 @@ type ContentCommentApiFunction struct {
 	SupportsPagination
 }
 
-func (a ContentCommentApiFunction) ConstructApiFunction() string {
-	base := fmt.Sprintf("%s/comments", a.ContentApiFunction.ConstructApiFunction())
+func (a ContentCommentApiFunction) Construct() string {
+	base := fmt.Sprintf("%s/comments", a.ContentApiFunction.Construct())
 	if a.TopComments {
 		return fmt.Sprintf("%s/top", base)
 	} else {
@@ -274,8 +274,8 @@ type ContentReadOnlineApiFunction struct {
 	ContentApiFunction
 }
 
-func (a ContentReadOnlineApiFunction) ConstructApiFunction() string {
-	return fmt.Sprintf("%s/read", a.ContentApiFunction.ConstructApiFunction())
+func (a ContentReadOnlineApiFunction) Construct() string {
+	return fmt.Sprintf("%s/read", a.ContentApiFunction.Construct())
 }
 
 func GetContentReadOnline(category, name string) (*ReadOnlineContent, error) {
@@ -312,8 +312,8 @@ type ContentDownloadsApiFunction struct {
 	ContentApiFunction
 }
 
-func (a ContentDownloadsApiFunction) ConstructApiFunction() string {
-	return fmt.Sprintf("%s/download", a.ContentApiFunction.ConstructApiFunction())
+func (a ContentDownloadsApiFunction) Construct() string {
+	return fmt.Sprintf("%s/download", a.ContentApiFunction.Construct())
 }
 
 type DownloadContent struct {
@@ -340,8 +340,8 @@ type ContentRelatedApiFunction struct {
 	SupportsPagination
 }
 
-func (a ContentRelatedApiFunction) ConstructApiFunction() string {
-	base := fmt.Sprintf("%s/related", a.ContentApiFunction.ConstructApiFunction())
+func (a ContentRelatedApiFunction) Construct() string {
+	base := fmt.Sprintf("%s/related", a.ContentApiFunction.Construct())
 	return PaginateString(base, a.Page)
 }
 

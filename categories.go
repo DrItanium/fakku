@@ -16,7 +16,7 @@ type CategoryIndexApiFunction struct {
 	Category string
 }
 
-func (c CategoryIndexApiFunction) ConstructApiFunction() string {
+func (c CategoryIndexApiFunction) Construct() string {
 	return fmt.Sprintf("%s/%s", ApiHeader, c.Category)
 }
 
@@ -81,7 +81,7 @@ type Tag struct {
 }
 type TagsApiFunction struct{}
 
-func (c TagsApiFunction) ConstructApiFunction() string {
+func (c TagsApiFunction) Construct() string {
 	return fmt.Sprintf("%s/tags", ApiHeader)
 }
 
@@ -106,7 +106,7 @@ type ContentSearchApiFunction struct {
 	SupportsPagination
 }
 
-func (c ContentSearchApiFunction) ConstructApiFunction() string {
+func (c ContentSearchApiFunction) Construct() string {
 	base := fmt.Sprintf("%s/search/%s", ApiHeader, c.Terms)
 	return PaginateString(base, c.Page)
 }

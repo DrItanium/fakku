@@ -3,7 +3,7 @@ package fakku
 
 type GeneralInformationApiFunction struct{}
 
-func (a GeneralInformationApiFunction) ConstructApiFunction() string {
+func (a GeneralInformationApiFunction) Construct() string {
 	return ApiHeader
 }
 

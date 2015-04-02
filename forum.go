@@ -6,7 +6,7 @@ import (
 
 type ForumCategoriesApiFunction struct{}
 
-func (c ForumCategoriesApiFunction) ConstructApiFunction() string {
+func (c ForumCategoriesApiFunction) Construct() string {
 	return fmt.Sprintf("%s/forums", ApiHeader)
 }
 
@@ -77,7 +77,7 @@ type ForumTopicsApiFunction struct {
 	SupportsPagination
 }
 
-func (c ForumTopicsApiFunction) ConstructApiFunction() string {
+func (c ForumTopicsApiFunction) Construct() string {
 	base := fmt.Sprintf("%s/forums/%s", ApiHeader, c.Forum)
 	return PaginateString(base, c.Page)
 }
@@ -132,7 +132,7 @@ type ForumPostsApiFunction struct {
 	SupportsPagination
 }
 
-func (c ForumPostsApiFunction) ConstructApiFunction() string {
+func (c ForumPostsApiFunction) Construct() string {
 	base := fmt.Sprintf("%s/forums/%s/%s", ApiHeader, c.Forum, c.Topic)
 	return PaginateString(base, c.Page)
 }
