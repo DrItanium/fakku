@@ -42,7 +42,7 @@ type UserProfile struct {
 	RawLastVisit        int64  `json:"user_last_visit"`
 	Subscribed          uint   `json:"user_subscribed"`
 	Timezone            int    `json:"user_timezone"`
-	Posts               uint   `json:"user_posts"`
+	PostCount           uint   `json:"user_posts"`
 	Topics              uint   `json:"user_topics"`
 	CommentCount        uint   `json:"user_comments"`
 	Signature           string `json:"user_signature"`
@@ -144,23 +144,23 @@ type UserAchievement struct {
 func (this *UserAchievement) Date() time.Time {
 	return time.Unix(this.RawDate, 0)
 }
-func (this *UserAchivement) IconUrl() (*url.URL, error) {
+func (this *UserAchievement) IconUrl() (*url.URL, error) {
 	return url.Parse(this.Icon)
 }
 
-type UserPostsApiFunction struct {
+type userPostsApiFunction struct {
 	userApiFunction
 	SupportsPagination
 }
 
-func (c UserPostsApiFunction) Construct() string {
+func (c userPostsApiFunction) Construct() string {
 	base := fmt.Sprintf("%s/posts", c.userApiFunction.Construct())
 	return PaginateString(base, c.Page)
 }
 
 func GetUserPostsPage(user string, page uint) (*UserPosts, error) {
 	var c UserPosts
-	url := UserPostsApiFunction{
+	url := userPostsApiFunction{
 		userApiFunction:    userApiFunction{Name: user},
 		SupportsPagination: SupportsPagination{Page: page},
 	}
@@ -175,19 +175,34 @@ func GetUserPosts(user string) (*UserPosts, error) {
 	return GetUserPostsPage(user, 0)
 }
 
+func (this *UserProfile) Posts() (*UserPosts, error) {
+	return GetUserPosts(this.Username)
+}
+func (this *UserProfile) PostsPage(page uint) (*UserPosts, error) {
+	return GetUserPostsPage(this.Username, page)
+}
+
 type UserPosts struct {
-	Posts []*UserPost `json:"posts"`
-	Total uint        `json:"total"`
-	Pages uint        `json:"pages"`
+	Posts UserPostList `json:"posts"`
+	Total uint         `json:"total"`
+	Pages uint         `json:"pages"`
 }
 
 type UserPost struct {
 	Id         uint   `json:"post_id"`
-	Date       uint   `json:"post_date"`
+	RawDate    int64  `json:"post_date"`
 	Text       string `json:"post_text"`
 	Reputation int    `json:"post_reputation"`
 	TopicTitle string `json:"post_topic_title"`
 	TopicUrl   string `json:"post_topic_url"`
+}
+type UserPostList []UserPost
+
+func (this *UserPost) Url() (*url.URL, error) {
+	return url.Parse(this.TopicUrl)
+}
+func (this *UserPost) Date() time.Time {
+	return time.Unix(this.RawDate, 0)
 }
 
 type UserTopicsApiFunction struct {
