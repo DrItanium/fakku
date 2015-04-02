@@ -104,25 +104,25 @@ func Tags() ([]Tag, error) {
 	}
 }
 
-type ContentSearch struct {
-	Content []Content `json:"content"`
-	Total   uint      `json:"total"`
-	Pages   uint      `json:"pages"`
+type ContentSearchResults struct {
+	Content ContentList `json:"content"`
+	Total   uint        `json:"total"`
+	Pages   uint        `json:"pages"`
 }
 
-type ContentSearchApiFunction struct {
+type contentSearchApiFunction struct {
 	Terms string
 	SupportsPagination
 }
 
-func (c ContentSearchApiFunction) Construct() string {
+func (c contentSearchApiFunction) Construct() string {
 	base := fmt.Sprintf("%s/search/%s", ApiHeader, c.Terms)
 	return PaginateString(base, c.Page)
 }
 
-func GetContentSearchResultsPage(terms string, page uint) (*ContentSearch, error) {
-	var c ContentSearch
-	url := ContentSearchApiFunction{
+func ContentSearchPage(terms string, page uint) (*ContentSearchResults, error) {
+	var c ContentSearchResults
+	url := contentSearchApiFunction{
 		Terms:              terms,
 		SupportsPagination: SupportsPagination{Page: page},
 	}
@@ -133,6 +133,6 @@ func GetContentSearchResultsPage(terms string, page uint) (*ContentSearch, error
 	}
 }
 
-func GetContentSearchResults(terms string) (*ContentSearch, error) {
-	return GetContentSearchResultsPage(terms, 0)
+func ContentSearch(terms string) (*ContentSearchResults, error) {
+	return ContentSearchPage(terms, 0)
 }
