@@ -76,6 +76,10 @@ func (this *UserProfile) FavoritesPage(page uint) (*UserFavorites, error) {
 	return GetUserFavoritesPage(this.Username, page)
 }
 
+func (this *UserProfile) AvatarUrl() (*url.URL, error) {
+	return url.Parse(this.Avatar)
+}
+
 type userFavoritesApiFunction struct {
 	userApiFunction
 	SupportsPagination
