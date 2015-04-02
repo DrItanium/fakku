@@ -57,7 +57,7 @@ func TestGetUserPosts_1(t *testing.T) {
 		case *ErrorStatus: // FUUUUU it is a pointer!
 			q := err.(*ErrorStatus)
 			if q.KnownError {
-				t.Log(err) // if it is a known error (503) then don't fail out as it may not be available
+				t.Error(err) // if it is a known error (503) then don't fail out as it may not be available
 			} else {
 				t.Fatal(err)
 			}
@@ -79,7 +79,7 @@ func TestGetUserTopics_1(t *testing.T) {
 		case *ErrorStatus: // FUUUUU it is a pointer!
 			q := err.(*ErrorStatus)
 			if q.KnownError {
-				t.Log(err) // if it is a known error (503) then don't fail out as it may not be available
+				t.Error(err) // if it is a known error (503) then don't fail out as it may not be available
 			} else {
 				t.Fatal(err)
 			}
