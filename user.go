@@ -138,7 +138,14 @@ type UserAchievement struct {
 	Description string `json:"achievement_description"`
 	Icon        string `json:"achievement_icon"`
 	Class       string `json:"achievement_class"`
-	Date        uint   `json:"achievement_date"`
+	RawDate     int64  `json:"achievement_date"`
+}
+
+func (this *UserAchievement) Date() time.Time {
+	return time.Unix(this.RawDate, 0)
+}
+func (this *UserAchivement) IconUrl() (*url.URL, error) {
+	return url.Parse(this.Icon)
 }
 
 type UserPostsApiFunction struct {
