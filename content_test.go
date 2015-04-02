@@ -49,7 +49,7 @@ func TestContentGetComments_1(t *testing.T) {
 }
 
 func TestContentGetReadOnline_1(t *testing.T) {
-	onlineContent, err := GetContentReadOnline(ContentTestingCategory, ContentTestingName)
+	onlineContent, err := ReadOnline(ContentTestingCategory, ContentTestingName)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,12 +60,9 @@ func TestContentGetReadOnline_1(t *testing.T) {
 }
 
 func TestGetContentDownloads_1(t *testing.T) {
-	downloads, err := GetContentDownloads(ContentTestingCategory, ContentTestingName)
+	_, err := ContentDownloads(ContentTestingCategory, ContentTestingName)
 	if err != nil {
 		t.Fatal(err)
-	}
-	if downloads.HasDownloads() && downloads.Total != uint(len(downloads.Downloads)) {
-		t.Errorf("Expected %d download pages, but got %d instead!", downloads.Total, len(downloads.Downloads))
 	}
 }
 
@@ -89,7 +86,7 @@ func TestGetContentRelated_1(t *testing.T) {
 
 // Test to see if the DMCA takedowns are correctly caught
 func TestDMCATakedown_1(t *testing.T) {
-	_, err := GetContentReadOnline(CategoryManga, "nanako-san-english")
+	_, err := ReadOnline(CategoryManga, "nanako-san-english")
 	if err == nil {
 		t.Fatal("DMCA takedown notice not found!")
 	}
@@ -107,7 +104,7 @@ func TestDMCATakedown_1(t *testing.T) {
 }
 
 func TestContentDoesntExist_1(t *testing.T) {
-	_, err := GetContentReadOnline(CategoryManga, "renai-sample-ch01-english")
+	_, err := ReadOnline(CategoryManga, "renai-sample-ch01-english")
 	if err == nil {
 		// try a second one since this is a little hard to test :/
 		t.Fatal("Did not fail as expected!")

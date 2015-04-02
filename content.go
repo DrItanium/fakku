@@ -249,7 +249,7 @@ func (r *ReadOnlineContent) UnmarshalJSON(b []byte) error {
 		r.Pages = make([]Page, len(v))
 		for i := 0; i < len(v); i++ {
 			ind := strconv.Itoa(i + 1)
-			r.Pages[i].populate(ind, v[ind].(map[string]interface{}))
+			r.Pages[i].populate(v[ind].(map[string]interface{}))
 		}
 		return nil
 	case []interface{}:
@@ -266,15 +266,20 @@ func (r *ReadOnlineContent) UnmarshalJSON(b []byte) error {
 }
 
 type Page struct {
-	Id    string
 	Thumb string
 	Image string
 }
 
-func (this *Page) populate(id string, c map[string]interface{}) {
-	this.Id = id
+func (this *Page) populate(c map[string]interface{}) {
 	this.Thumb = c["thumb"].(string)
 	this.Image = c["image"].(string)
+}
+
+func (this *Page) ThumbUrl() (*url.URL, error) {
+	return url.Parse(this.Thumb)
+}
+func (this *Page) ImageUrl() (*url.URL, error) {
+	return url.Parse(this.Image)
 }
 
 type contentReadOnlineApiFunction struct {
