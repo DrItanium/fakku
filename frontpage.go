@@ -56,7 +56,6 @@ func (c *FrontPagePosts) UnmarshalJSON(b []byte) error {
 			if err0 != nil {
 				return err0
 			}
-			fmt.Println(k)
 			c.Index[i] = k
 		} else {
 			return &UnknownEntry{Message: fmt.Sprintf("Couldn't figure out front page entry type %s", q)}
