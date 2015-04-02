@@ -18,13 +18,13 @@ type categoryIndexApiFunction struct {
 }
 
 func (c categoryIndexApiFunction) Construct() string {
-	return fmt.Sprintf("%s/%s", ApiHeader, c.Category)
+	return fmt.Sprintf("%s/%s", apiHeader, c.Category)
 }
 
 func GetCategoryIndex(category string) (*CategoryIndex, error) {
 	var c CategoryIndex
 	url := categoryIndexApiFunction{Category: category}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil
@@ -91,13 +91,13 @@ func (this *Tag) ImageSampleUrl() (*url.URL, error) {
 type tagsApiFunction struct{}
 
 func (c tagsApiFunction) Construct() string {
-	return fmt.Sprintf("%s/tags", ApiHeader)
+	return fmt.Sprintf("%s/tags", apiHeader)
 }
 
 func Tags() ([]Tag, error) {
 	var c tags
 	url := tagsApiFunction{}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return c.Tags, nil
@@ -112,21 +112,21 @@ type ContentSearchResults struct {
 
 type contentSearchApiFunction struct {
 	Terms string
-	SupportsPagination
+	supportsPagination
 }
 
 func (c contentSearchApiFunction) Construct() string {
-	base := fmt.Sprintf("%s/search/%s", ApiHeader, c.Terms)
-	return PaginateString(base, c.Page)
+	base := fmt.Sprintf("%s/search/%s", apiHeader, c.Terms)
+	return paginateString(base, c.Page)
 }
 
 func ContentSearchPage(terms string, page uint) (*ContentSearchResults, error) {
 	var c ContentSearchResults
 	url := contentSearchApiFunction{
 		Terms:              terms,
-		SupportsPagination: SupportsPagination{Page: page},
+		supportsPagination: supportsPagination{Page: page},
 	}
-	if err := ApiCall(url, c); err != nil {
+	if err := apiCall(url, c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil

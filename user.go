@@ -11,13 +11,13 @@ type userApiFunction struct {
 }
 
 func (c userApiFunction) Construct() string {
-	return fmt.Sprintf("%s/users/%s", ApiHeader, c.Name)
+	return fmt.Sprintf("%s/users/%s", apiHeader, c.Name)
 }
 
 func GetUser(name string) (*UserProfile, error) {
 	var c user
 	url := userApiFunction{Name: name}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		//cheat a little bit :D
@@ -82,21 +82,21 @@ func (this *UserProfile) AvatarUrl() (*url.URL, error) {
 
 type userFavoritesApiFunction struct {
 	userApiFunction
-	SupportsPagination
+	supportsPagination
 }
 
 func (c userFavoritesApiFunction) Construct() string {
 	base := fmt.Sprintf("%s/favorites", c.userApiFunction.Construct())
-	return PaginateString(base, c.Page)
+	return paginateString(base, c.Page)
 }
 
 func GetUserFavoritesPage(user string, page uint) (*UserFavorites, error) {
 	var c UserFavorites
 	url := userFavoritesApiFunction{
 		userApiFunction:    userApiFunction{Name: user},
-		SupportsPagination: SupportsPagination{Page: page},
+		supportsPagination: supportsPagination{Page: page},
 	}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil
@@ -126,7 +126,7 @@ func GetUserAchievements(user string) (*UserAchievements, error) {
 	url := userAchievementsApiFunction{
 		userApiFunction: userApiFunction{Name: user},
 	}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil
@@ -154,21 +154,21 @@ func (this *UserAchievement) IconUrl() (*url.URL, error) {
 
 type userPostsApiFunction struct {
 	userApiFunction
-	SupportsPagination
+	supportsPagination
 }
 
 func (c userPostsApiFunction) Construct() string {
 	base := fmt.Sprintf("%s/posts", c.userApiFunction.Construct())
-	return PaginateString(base, c.Page)
+	return paginateString(base, c.Page)
 }
 
 func GetUserPostsPage(user string, page uint) (*UserPosts, error) {
 	var c UserPosts
 	url := userPostsApiFunction{
 		userApiFunction:    userApiFunction{Name: user},
-		SupportsPagination: SupportsPagination{Page: page},
+		supportsPagination: supportsPagination{Page: page},
 	}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil
@@ -211,21 +211,21 @@ func (this *UserPost) Date() time.Time {
 
 type UserTopicsApiFunction struct {
 	userApiFunction
-	SupportsPagination
+	supportsPagination
 }
 
 func (c UserTopicsApiFunction) Construct() string {
 	base := fmt.Sprintf("%s/topics", c.userApiFunction.Construct())
-	return PaginateString(base, c.Page)
+	return paginateString(base, c.Page)
 }
 
 func GetUserTopicsPage(user string, page uint) (*UserTopics, error) {
 	var c UserTopics
 	url := UserTopicsApiFunction{
 		userApiFunction:    userApiFunction{Name: user},
-		SupportsPagination: SupportsPagination{Page: page},
+		supportsPagination: supportsPagination{Page: page},
 	}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil
@@ -294,21 +294,21 @@ type UserComments struct {
 
 type userCommentsApiFunction struct {
 	userApiFunction
-	SupportsPagination
+	supportsPagination
 }
 
 func (c userCommentsApiFunction) Construct() string {
 	base := fmt.Sprintf("%s/comments", c.userApiFunction.Construct())
-	return PaginateString(base, c.Page)
+	return paginateString(base, c.Page)
 }
 
 func GetUserCommentsPage(user string, page uint) (*UserComments, error) {
 	var c UserComments
 	url := userCommentsApiFunction{
 		userApiFunction:    userApiFunction{Name: user},
-		SupportsPagination: SupportsPagination{Page: page},
+		supportsPagination: supportsPagination{Page: page},
 	}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil

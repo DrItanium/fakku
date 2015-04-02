@@ -144,7 +144,7 @@ func (c *Content) populate(v map[string]interface{}) {
 func GetContent(category, name string) (*Content, error) {
 	var c Content
 	url := contentApiFunction{Category: category, Name: name}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil
@@ -157,13 +157,13 @@ type contentApiFunction struct {
 }
 
 func (a contentApiFunction) Construct() string {
-	return fmt.Sprintf("%s/%s/%s", ApiHeader, a.Category, a.Name)
+	return fmt.Sprintf("%s/%s/%s", apiHeader, a.Category, a.Name)
 }
 
 type contentCommentApiFunction struct {
 	contentApiFunction
 	TopComments bool
-	SupportsPagination
+	supportsPagination
 }
 
 func (a contentCommentApiFunction) Construct() string {
@@ -171,13 +171,13 @@ func (a contentCommentApiFunction) Construct() string {
 	if a.TopComments {
 		return fmt.Sprintf("%s/top", base)
 	} else {
-		return PaginateString(base, a.Page)
+		return paginateString(base, a.Page)
 	}
 }
 
-func getContentCommentsGeneric(url ApiFunction) (*Comments, error) {
+func getContentCommentsGeneric(url apiFunction) (*Comments, error) {
 	var c Comments
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil
@@ -199,7 +199,7 @@ func ContentCommentsPage(category, name string, page uint) (*Comments, error) {
 			Category: category,
 			Name:     name,
 		},
-		SupportsPagination: SupportsPagination{Page: page},
+		supportsPagination: supportsPagination{Page: page},
 	}
 	return getContentCommentsGeneric(url)
 }
@@ -318,7 +318,7 @@ func ReadOnline(category, name string) (*ReadOnlineContent, error) {
 			Name:     name,
 		},
 	}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil
@@ -361,7 +361,7 @@ func ContentDownloads(category, name string) (DownloadList, error) {
 			Name:     name,
 		},
 	}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return c.Downloads, nil
@@ -394,12 +394,12 @@ func (this *Download) Time() time.Time {
 
 type contentRelatedApiFunction struct {
 	contentApiFunction
-	SupportsPagination
+	supportsPagination
 }
 
 func (a contentRelatedApiFunction) Construct() string {
 	base := fmt.Sprintf("%s/related", a.contentApiFunction.Construct())
-	return PaginateString(base, a.Page)
+	return paginateString(base, a.Page)
 }
 
 type RelatedContentList struct {
@@ -419,9 +419,9 @@ func RelatedContentPage(category, name string, page uint) (*RelatedContentList, 
 			Category: category,
 			Name:     name,
 		},
-		SupportsPagination: SupportsPagination{Page: page},
+		supportsPagination: supportsPagination{Page: page},
 	}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil

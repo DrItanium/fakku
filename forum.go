@@ -9,13 +9,13 @@ import (
 type forumCategoriesApiFunction struct{}
 
 func (c forumCategoriesApiFunction) Construct() string {
-	return fmt.Sprintf("%s/forums", ApiHeader)
+	return fmt.Sprintf("%s/forums", apiHeader)
 }
 
 func GetForumCategories() ([]ForumCategory, error) {
 	var c forumCategoriesContainer
 	url := forumCategoriesApiFunction{}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return c.Categories, nil
@@ -103,12 +103,12 @@ func (t *Topic) populate(c map[string]interface{}) error {
 
 type ForumTopicsApiFunction struct {
 	Forum string
-	SupportsPagination
+	supportsPagination
 }
 
 func (c ForumTopicsApiFunction) Construct() string {
-	base := fmt.Sprintf("%s/forums/%s", ApiHeader, c.Forum)
-	return PaginateString(base, c.Page)
+	base := fmt.Sprintf("%s/forums/%s", apiHeader, c.Forum)
+	return paginateString(base, c.Page)
 }
 func GetForumTopics(forum string) (*ForumTopics, error) {
 	return GetForumTopicsPage(forum, 0)
@@ -117,9 +117,9 @@ func GetForumTopicsPage(forum string, page uint) (*ForumTopics, error) {
 	var c ForumTopics
 	url := ForumTopicsApiFunction{
 		Forum:              forum,
-		SupportsPagination: SupportsPagination{Page: page},
+		supportsPagination: supportsPagination{Page: page},
 	}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil
@@ -158,12 +158,12 @@ type ForumPosts struct {
 type ForumPostsApiFunction struct {
 	Forum string
 	Topic string
-	SupportsPagination
+	supportsPagination
 }
 
 func (c ForumPostsApiFunction) Construct() string {
-	base := fmt.Sprintf("%s/forums/%s/%s", ApiHeader, c.Forum, c.Topic)
-	return PaginateString(base, c.Page)
+	base := fmt.Sprintf("%s/forums/%s/%s", apiHeader, c.Forum, c.Topic)
+	return paginateString(base, c.Page)
 }
 func GetForumPosts(forum, topic string) (*ForumPosts, error) {
 	return GetForumPostsPage(forum, topic, 0)
@@ -173,9 +173,9 @@ func GetForumPostsPage(forum, topic string, page uint) (*ForumPosts, error) {
 	url := ForumPostsApiFunction{
 		Forum:              forum,
 		Topic:              topic,
-		SupportsPagination: SupportsPagination{Page: page},
+		supportsPagination: supportsPagination{Page: page},
 	}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil

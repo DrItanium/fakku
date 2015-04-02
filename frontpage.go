@@ -6,20 +6,20 @@ import (
 )
 
 type FrontPagePostsApiFunction struct {
-	SupportsPagination
+	supportsPagination
 }
 
 func (c FrontPagePostsApiFunction) Construct() string {
-	base := fmt.Sprintf("%s/index", ApiHeader)
-	return PaginateString(base, c.Page)
+	base := fmt.Sprintf("%s/index", apiHeader)
+	return paginateString(base, c.Page)
 }
 
 func GetFrontPagePostsPage(page uint) (*FrontPagePosts, error) {
 	var c FrontPagePosts
 	url := FrontPagePostsApiFunction{
-		SupportsPagination: SupportsPagination{Page: page},
+		supportsPagination: supportsPagination{Page: page},
 	}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil
@@ -67,13 +67,13 @@ func (c *FrontPagePosts) UnmarshalJSON(b []byte) error {
 type FrontPagePollApiFunction struct{}
 
 func (c FrontPagePollApiFunction) Construct() string {
-	return fmt.Sprintf("%s/poll", ApiHeader)
+	return fmt.Sprintf("%s/poll", apiHeader)
 }
 
 func GetFrontPagePoll() (*FrontPagePoll, error) {
 	var c FrontPagePoll
 	url := FrontPagePollApiFunction{}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil
@@ -112,13 +112,13 @@ func (c *FrontPagePoll) UnmarshalJSON(b []byte) error {
 type FrontPageFeaturedTopicsApiFunction struct{}
 
 func (c FrontPageFeaturedTopicsApiFunction) Construct() string {
-	return fmt.Sprintf("%s/featured", ApiHeader)
+	return fmt.Sprintf("%s/featured", apiHeader)
 }
 
 func GetFrontPageFeaturedTopics() (*FrontPageFeaturedTopics, error) {
 	var c FrontPageFeaturedTopics
 	url := FrontPageFeaturedTopicsApiFunction{}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil

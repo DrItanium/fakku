@@ -12,14 +12,14 @@ const (
 	ResponseNotFound                   = 404
 	ResponseUnavailableForLegalReasons = 451 // got DMCA'd son
 	ResponseServiceUnavailable         = 503 // Information unavailable
-	ApiHeader                          = "https://api.fakku.net/"
+	apiHeader                          = "https://api.fakku.net/"
 )
 
-type ApiFunction interface {
+type apiFunction interface {
 	Construct() string
 }
 
-type SupportsPagination struct {
+type supportsPagination struct {
 	Page uint
 }
 
@@ -27,6 +27,10 @@ type ErrorStatus struct {
 	ErrorCode    int
 	ErrorMessage string `json:"error"`
 	KnownError   bool
+}
+
+func (e ErrorStatus) Error() string {
+	return fmt.Sprintf("Error %d: %s", e.ErrorCode, e.ErrorMessage)
 }
 
 type UnknownEntry struct {
@@ -37,11 +41,7 @@ func (e UnknownEntry) Error() string {
 	return e.Message
 }
 
-func (e ErrorStatus) Error() string {
-	return fmt.Sprintf("Error %d: %s", e.ErrorCode, e.ErrorMessage)
-}
-
-func ApiCall(url ApiFunction, c interface{}) error {
+func apiCall(url apiFunction, c interface{}) error {
 	resp, err := http.Get(url.Construct())
 	if err != nil {
 		return err
@@ -73,7 +73,7 @@ func ApiCall(url ApiFunction, c interface{}) error {
 		return &ErrorStatus{ErrorCode: resp.StatusCode, ErrorMessage: resp.Status, KnownError: false}
 	}
 }
-func PaginateString(s string, page uint) string {
+func paginateString(s string, page uint) string {
 	// If page is zero then it is meaningless so just return the string
 	if page == 0 {
 		return s

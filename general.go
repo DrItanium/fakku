@@ -8,7 +8,7 @@ import (
 type generalInformationApiFunction struct{}
 
 func (a generalInformationApiFunction) Construct() string {
-	return ApiHeader
+	return apiHeader
 }
 
 type GeneralInformation struct {
@@ -24,7 +24,7 @@ func (this *GeneralInformation) Url() (*url.URL, error) {
 func GetGeneralInformation() (*GeneralInformation, error) {
 	var c GeneralInformation
 	url := generalInformationApiFunction{}
-	if err := ApiCall(url, &c); err != nil {
+	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		return &c, nil
