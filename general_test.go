@@ -9,3 +9,11 @@ func TestFakkuGeneralInformation_1(t *testing.T) {
 		t.Log(err)
 	}
 }
+
+func TestFakkuOnline(t *testing.T) {
+	if Online() {
+		t.Log("Fakku is online")
+	} else {
+		t.Log("Fakku is offline......:(")
+	}
+}
