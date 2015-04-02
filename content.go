@@ -38,12 +38,7 @@ type Content struct {
 		Sample string
 	}
 }
-
-func newContentFromPopulation(v map[string]interface{}) *Content {
-	var c Content
-	c.populateContent(v)
-	return &c
-}
+type ContentList []Content
 
 func (c *Content) UnmarshalJSON(b []byte) error {
 	var f interface{}
@@ -346,9 +341,9 @@ func (a ContentRelatedApiFunction) Construct() string {
 }
 
 type RelatedContent struct {
-	Related []*Content `json:"related"`
-	Total   uint       `json:"total"`
-	Pages   uint       `json:"pages"`
+	Related ContentList `json:"related"`
+	Total   uint        `json:"total"`
+	Pages   uint        `json:"pages"`
 }
 
 func GetRelatedContentAll(category, name string) (*RelatedContent, error) {
@@ -378,9 +373,9 @@ func (c *RelatedContent) UnmarshalJSON(b []byte) error {
 	m := f.(map[string]interface{})
 	related := m["related"]
 	v := related.([]interface{})
-	c.Related = make([]*Content, len(v))
+	c.Related = make(ContentList, len(v))
 	for i := 0; i < len(v); i++ {
-		c.Related[i] = newContentFromPopulation(v[i].(map[string]interface{}))
+		c.Related[i].populateContent(v[i].(map[string]interface{}))
 	}
 	c.Total = uint(m["total"].(float64))
 	c.Pages = uint(m["pages"].(float64))

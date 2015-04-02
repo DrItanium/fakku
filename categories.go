@@ -32,10 +32,10 @@ func GetCategoryIndex(category string) (*CategoryIndex, error) {
 }
 
 type CategoryIndex struct {
-	Latest        []*Content
-	Favorites     []*Content
-	Popular       []*Content
-	Controversial []*Content
+	Latest        ContentList
+	Favorites     ContentList
+	Popular       ContentList
+	Controversial ContentList
 }
 
 func (c *CategoryIndex) UnmarshalJSON(b []byte) error {
@@ -46,36 +46,36 @@ func (c *CategoryIndex) UnmarshalJSON(b []byte) error {
 		return fmt.Errorf("CategoryIndex request yielded an error!")
 	}
 	latest := m["latest"].([]interface{})
-	c.Latest = make([]*Content, len(latest))
+	c.Latest = make(ContentList, len(latest))
 	for i := 0; i < len(latest); i++ {
-		c.Latest[i] = newContentFromPopulation(latest[i].(map[string]interface{}))
+		c.Latest[i].populateContent(latest[i].(map[string]interface{}))
 	}
 	favorites := m["favorites"].([]interface{})
-	c.Favorites = make([]*Content, len(favorites))
+	c.Favorites = make(ContentList, len(favorites))
 	for i := 0; i < len(favorites); i++ {
-		c.Favorites[i] = newContentFromPopulation(favorites[i].(map[string]interface{}))
+		c.Favorites[i].populateContent(favorites[i].(map[string]interface{}))
 	}
 	popular := m["popular"].([]interface{})
-	c.Popular = make([]*Content, len(popular))
+	c.Popular = make([]Content, len(popular))
 	for i := 0; i < len(popular); i++ {
-		c.Popular[i] = newContentFromPopulation(popular[i].(map[string]interface{}))
+		c.Popular[i].populateContent(popular[i].(map[string]interface{}))
 	}
 	controversial := m["controversial"].([]interface{})
-	c.Controversial = make([]*Content, len(controversial))
+	c.Controversial = make([]Content, len(controversial))
 	for i := 0; i < len(controversial); i++ {
-		c.Popular[i] = newContentFromPopulation(controversial[i].(map[string]interface{}))
+		c.Controversial[i].populateContent(controversial[i].(map[string]interface{}))
 	}
 	return nil
 }
 
 type Tags struct {
-	Tags  []*Tag `json:"tags"`
-	Total uint   `json:"total"`
+	Tags  []Tag `json:"tags"`
+	Total uint  `json:"total"`
 }
 
 type Tag struct {
 	Name        string `json:"tag_name"`
-	Url         string `json::"tag_url"`
+	Url         string `json:"tag_url"`
 	ImageSample string `json:"tag_image_sample"`
 	Description string `json:"tag_description"`
 }
@@ -96,9 +96,9 @@ func GetTags() (*Tags, error) {
 }
 
 type ContentSearch struct {
-	Content []*Content `json:"content"`
-	Total   uint       `json:"total"`
-	Pages   uint       `json:"pages"`
+	Content []Content `json:"content"`
+	Total   uint      `json:"total"`
+	Pages   uint      `json:"pages"`
 }
 
 type ContentSearchApiFunction struct {

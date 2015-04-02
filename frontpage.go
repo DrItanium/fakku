@@ -47,7 +47,9 @@ func (c *FrontPagePosts) UnmarshalJSON(b []byte) error {
 	for i := 0; i < len(c.Index); i++ {
 		q := v[i].(map[string]interface{})
 		if _, ok := q["content_name"]; ok {
-			c.Index[i] = newContentFromPopulation(q)
+			var z Content
+			z.populateContent(q)
+			c.Index[i] = &z
 		} else if _, ok := q["topic_title"]; ok {
 			var k Topic
 			k.populateTopic(q)
