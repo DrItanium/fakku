@@ -119,7 +119,7 @@ func TestContentDoesntExist_1(t *testing.T) {
 	_, err := GetContentReadOnline(CategoryManga, "renai-sample-ch01-english")
 	if err == nil {
 		// try a second one since this is a little hard to test :/
-		t.Error("DMCA takedown notice not found!")
+		t.Error("Content does exist!")
 	} else {
 		switch err.(type) {
 		case *ErrorStatus: // FUUUUU it is a pointer!

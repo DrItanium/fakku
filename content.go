@@ -42,14 +42,37 @@ func newContentFromPopulation(v map[string]interface{}) *Content {
 func (c *Content) UnmarshalJSON(b []byte) error {
 	var f interface{}
 	json.Unmarshal(b, &f)
-	m := f.(map[string]interface{})
-
-	contents := m["content"]
-	v := contents.(map[string]interface{})
-
-	c.populateContent(v)
-
-	return nil
+	switch f.(type) {
+	case map[string]interface{}:
+		m := f.(map[string]interface{})
+		contents := m["content"]
+		switch contents.(type) {
+		case map[string]interface{}:
+			v := contents.(map[string]interface{})
+			c.populateContent(v)
+			return nil
+		case []interface{}:
+			q := contents.([]interface{})
+			if len(q) == 0 {
+				// doesn't exist
+				return fmt.Errorf("Content doesn't exist")
+			} else {
+				return fmt.Errorf("Got unknown json data back from content request. API Change?")
+			}
+		default:
+			return fmt.Errorf("Got an unknown layout back from content request. API Change?")
+		}
+	case []interface{}:
+		q := f.([]interface{})
+		if len(q) == 0 {
+			// doesn't exist
+			return fmt.Errorf("Content doesn't exist")
+		} else {
+			return fmt.Errorf("Got unknown json data back from content request. API Change?")
+		}
+	default:
+		return fmt.Errorf("Got an unknown layout back from content request. API Change?")
+	}
 }
 
 func (c *Content) populateContent(v map[string]interface{}) {
