@@ -2,68 +2,94 @@ package fakku
 
 import (
 	"fmt"
+	"net/url"
+	"time"
 )
 
-type UserApiFunction struct {
+type userApiFunction struct {
 	Name string
 }
 
-func (c UserApiFunction) Construct() string {
+func (c userApiFunction) Construct() string {
 	return fmt.Sprintf("%s/users/%s", ApiHeader, c.Name)
 }
 
-func GetUserProfile(name string) (*UserProfile, error) {
-	var c User
-	url := UserApiFunction{Name: name}
+func GetUser(name string) (*UserProfile, error) {
+	var c user
+	url := userApiFunction{Name: name}
 	if err := ApiCall(url, &c); err != nil {
 		return nil, err
 	} else {
 		//cheat a little bit :D
-		return &(*c.Profile), nil
+		return &(c.Profile), nil
 	}
 }
 
-type User struct {
-	Profile *UserProfile `json:"user"`
+type user struct {
+	Profile UserProfile `json:"user"`
 }
 
 // DAMN, I can't just have Go convert these to bools for me.
 // I'll need to do the conversion manually
 type UserProfile struct {
-	Username          string `json:"user_username"`
-	Url               string `json:"user_url"`
-	Rank              string `json:"user_rank"`
-	Avatar            string `json:"user_avatar"`
-	AvatarWidth       uint   `json:"user_avatar_width"`
-	AvatarHeight      uint   `json:"user_avatar_height"`
-	RegistrationDate  uint   `json:"user_registration_date"`
-	LastVisit         uint   `json:"user_last_visit"`
-	Subscribed        uint   `json:"user_subscribed"`
-	Timezone          int    `json:"user_timezone"`
-	Posts             uint   `json:"user_posts"`
-	Topics            uint   `json:"user_topics"`
-	Comments          uint   `json:"user_comments"`
-	Signature         string `json:"user_signature"`
-	ForumReputation   int    `json:"user_forum_reputation"`
-	CommentReputation int    `json:"user_comment_reputation"`
-	Gold              uint   `json:"user_gold"`
-	Online            uint   `json:"user_online"`
+	Username            string `json:"user_username"`
+	RawUrl              string `json:"user_url"`
+	Rank                string `json:"user_rank"`
+	Avatar              string `json:"user_avatar"`
+	AvatarWidth         uint   `json:"user_avatar_width"`
+	AvatarHeight        uint   `json:"user_avatar_height"`
+	RawRegistrationDate int64  `json:"user_registration_date"`
+	RawLastVisit        int64  `json:"user_last_visit"`
+	Subscribed          uint   `json:"user_subscribed"`
+	Timezone            int    `json:"user_timezone"`
+	Posts               uint   `json:"user_posts"`
+	Topics              uint   `json:"user_topics"`
+	CommentCount        uint   `json:"user_comments"`
+	Signature           string `json:"user_signature"`
+	ForumReputation     int    `json:"user_forum_reputation"`
+	CommentReputation   int    `json:"user_comment_reputation"`
+	RawGold             uint   `json:"user_gold"`
+	RawOnline           uint   `json:"user_online"`
 }
 
-type UserFavoritesApiFunction struct {
-	UserApiFunction
+func (this *UserProfile) Gold() bool {
+	return this.RawGold == 1
+}
+func (this *UserProfile) Online() bool {
+	return this.RawOnline == 1
+}
+func (this *UserProfile) Url() (*url.URL, error) {
+	return url.Parse(this.RawUrl)
+}
+func (this *UserProfile) RegistrationDate() time.Time {
+	return time.Unix(this.RawRegistrationDate, 0)
+}
+
+func (this *UserProfile) LastVisit() time.Time {
+	return time.Unix(this.RawLastVisit, 0)
+}
+
+func (this *UserProfile) Favorites() (*UserFavorites, error) {
+	return GetUserFavorites(this.Username)
+}
+func (this *UserProfile) FavoritesPage(page uint) (*UserFavorites, error) {
+	return GetUserFavoritesPage(this.Username, page)
+}
+
+type userFavoritesApiFunction struct {
+	userApiFunction
 	SupportsPagination
 }
 
-func (c UserFavoritesApiFunction) Construct() string {
-	base := fmt.Sprintf("%s/favorites", c.UserApiFunction.Construct())
+func (c userFavoritesApiFunction) Construct() string {
+	base := fmt.Sprintf("%s/favorites", c.userApiFunction.Construct())
 	return PaginateString(base, c.Page)
 }
 
 func GetUserFavoritesPage(user string, page uint) (*UserFavorites, error) {
 	var c UserFavorites
-	url := UserFavoritesApiFunction{
-		UserApiFunction:    UserApiFunction{Name: user},
+	url := userFavoritesApiFunction{
+		userApiFunction:    userApiFunction{Name: user},
 		SupportsPagination: SupportsPagination{Page: page},
 	}
 	if err := ApiCall(url, &c); err != nil {
@@ -78,23 +104,23 @@ func GetUserFavorites(user string) (*UserFavorites, error) {
 }
 
 type UserFavorites struct {
-	Favorites []*Content `json:"favorites"`
-	Total     uint       `json:"total"`
-	Pages     uint       `json:"pages"`
+	Favorites ContentList `json:"favorites"`
+	Total     uint        `json:"total"`
+	Pages     uint        `json:"pages"`
 }
 
-type UserAchievementsApiFunction struct {
-	UserApiFunction
+type userAchievementsApiFunction struct {
+	userApiFunction
 }
 
-func (c UserAchievementsApiFunction) Construct() string {
-	return fmt.Sprintf("%s/achievements", c.UserApiFunction.Construct())
+func (c userAchievementsApiFunction) Construct() string {
+	return fmt.Sprintf("%s/achievements", c.userApiFunction.Construct())
 }
 
 func GetUserAchievements(user string) (*UserAchievements, error) {
 	var c UserAchievements
-	url := UserAchievementsApiFunction{
-		UserApiFunction: UserApiFunction{Name: user},
+	url := userAchievementsApiFunction{
+		userApiFunction: userApiFunction{Name: user},
 	}
 	if err := ApiCall(url, &c); err != nil {
 		return nil, err
@@ -116,19 +142,19 @@ type UserAchievement struct {
 }
 
 type UserPostsApiFunction struct {
-	UserApiFunction
+	userApiFunction
 	SupportsPagination
 }
 
 func (c UserPostsApiFunction) Construct() string {
-	base := fmt.Sprintf("%s/posts", c.UserApiFunction.Construct())
+	base := fmt.Sprintf("%s/posts", c.userApiFunction.Construct())
 	return PaginateString(base, c.Page)
 }
 
 func GetUserPostsPage(user string, page uint) (*UserPosts, error) {
 	var c UserPosts
 	url := UserPostsApiFunction{
-		UserApiFunction:    UserApiFunction{Name: user},
+		userApiFunction:    userApiFunction{Name: user},
 		SupportsPagination: SupportsPagination{Page: page},
 	}
 	if err := ApiCall(url, &c); err != nil {
@@ -158,19 +184,19 @@ type UserPost struct {
 }
 
 type UserTopicsApiFunction struct {
-	UserApiFunction
+	userApiFunction
 	SupportsPagination
 }
 
 func (c UserTopicsApiFunction) Construct() string {
-	base := fmt.Sprintf("%s/topics", c.UserApiFunction.Construct())
+	base := fmt.Sprintf("%s/topics", c.userApiFunction.Construct())
 	return PaginateString(base, c.Page)
 }
 
 func GetUserTopicsPage(user string, page uint) (*UserTopics, error) {
 	var c UserTopics
 	url := UserTopicsApiFunction{
-		UserApiFunction:    UserApiFunction{Name: user},
+		userApiFunction:    userApiFunction{Name: user},
 		SupportsPagination: SupportsPagination{Page: page},
 	}
 	if err := ApiCall(url, &c); err != nil {
@@ -184,38 +210,76 @@ func GetUserTopics(user string) (*UserTopics, error) {
 	return GetUserTopicsPage(user, 0)
 }
 
+type UserTopicList []UserTopic
 type UserTopics struct {
-	Topics []*UserTopic `json:"topics"`
-	Total  uint         `json:"total"`
-	Pages  uint         `json:"pages"`
+	Topics UserTopicList `json:"topics"`
+	Total  uint          `json:"total"`
+	Pages  uint          `json:"pages"`
 }
 
 type UserTopic struct {
-	Title       string `json:"topic_title"`
-	Url         string `json:"topic_url"`
-	Time        uint   `json:"topic_time"`
-	Replies     uint   `json:"topic_replies"`
-	Status      uint   `json:"topic_status"`
-	Poll        uint   `json:"topic_poll"`
-	LastPostId  uint   `json:"topic_last_post_id"`
-	PostPreview string `json:"topic_post_preview"`
-	Poster      string `json:"topic_poster"`
-	PosterUrl   string `json:"topic_poster_url"`
+	Title        string `json:"topic_title"`
+	RawUrl       string `json:"topic_url"`
+	RawTime      int64  `json:"topic_time"`
+	Replies      uint   `json:"topic_replies"`
+	Status       uint   `json:"topic_status"`
+	Poll         uint   `json:"topic_poll"`
+	LastPostId   uint   `json:"topic_last_post_id"`
+	PostPreview  string `json:"topic_post_preview"`
+	Poster       string `json:"topic_poster"`
+	RawPosterUrl string `json:"topic_poster_url"`
 }
-type UserCommentsApiFunction struct {
-	UserApiFunction
+
+func (this *UserTopic) Url() (*url.URL, error) {
+	return url.Parse(this.RawUrl)
+}
+
+func (this *UserTopic) PosterUrl() (*url.URL, error) {
+	return url.Parse(this.RawPosterUrl)
+}
+
+func (this *UserTopic) Time() time.Time {
+	return time.Unix(this.RawTime, 0)
+}
+
+type UserComment struct {
+	Id          uint   `json:"comment_id"`
+	AttachedId  uint   `json:"comment_attached_id"`
+	Reputation  int    `json:"comment_reputation"`
+	Text        string `json:"comment_string"`
+	RawDate     int64  `json:"comment_date"`
+	ContentName string `json:"comment_content_name"`
+	ContentUrl  string `json:"comment_content_url"`
+}
+type UserCommentList []UserComment
+
+func (this *UserComment) Url() (*url.URL, error) {
+	return url.Parse(this.ContentUrl)
+}
+func (this *UserComment) Date() time.Time {
+	return time.Unix(this.RawDate, 0)
+}
+
+type UserComments struct {
+	CommentsList UserCommentList `json:"comments"`
+	Total        uint            `json:"total"`
+	Pages        uint            `json:"pages"`
+}
+
+type userCommentsApiFunction struct {
+	userApiFunction
 	SupportsPagination
 }
 
-func (c UserCommentsApiFunction) Construct() string {
-	base := fmt.Sprintf("%s/comments", c.UserApiFunction.Construct())
+func (c userCommentsApiFunction) Construct() string {
+	base := fmt.Sprintf("%s/comments", c.userApiFunction.Construct())
 	return PaginateString(base, c.Page)
 }
 
 func GetUserCommentsPage(user string, page uint) (*UserComments, error) {
 	var c UserComments
-	url := UserCommentsApiFunction{
-		UserApiFunction:    UserApiFunction{Name: user},
+	url := userCommentsApiFunction{
+		userApiFunction:    userApiFunction{Name: user},
 		SupportsPagination: SupportsPagination{Page: page},
 	}
 	if err := ApiCall(url, &c); err != nil {
@@ -230,18 +294,9 @@ func GetUserComments(user string) (*UserComments, error) {
 	return GetUserCommentsPage(user, 0)
 }
 
-type UserComments struct {
-	Comments []*UserComment `json:"comments"`
-	Total    uint           `json:"total"`
-	Pages    uint           `json:"pages"`
+func (this *UserProfile) Comments() (*UserComments, error) {
+	return GetUserComments(this.Username)
 }
-
-type UserComment struct {
-	Id          uint   `json:"comment_id"`
-	AttachedId  uint   `json:"comment_attached_id"`
-	Reputation  int    `json:"comment_reputation"`
-	Text        string `json:"comment_string"`
-	Date        uint   `json:"comment_date"`
-	ContentName string `json:"comment_content_name"`
-	ContentUrl  string `json:"comment_content_url"`
+func (this *UserProfile) CommentsPage(page uint) (*UserComments, error) {
+	return GetUserCommentsPage(this.Username, page)
 }

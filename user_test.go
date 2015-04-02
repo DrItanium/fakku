@@ -11,7 +11,7 @@ const (
 )
 
 func TestGetUserProfile_1(t *testing.T) {
-	profile, err := GetUserProfile(TestUserName)
+	profile, err := GetUser(TestUserName)
 	if err != nil {
 		t.Fatal(err)
 	}
