@@ -8,7 +8,7 @@ const (
 	// Test the manga listed in the API docs
 	ContentTestingCategory           = "manga"
 	ContentTestingName               = "right-now-while-cleaning-the-pool"
-	ContentTestingUrl                = "http://www.fakku.net/manga/right-now-while-cleaning-the-pool"
+	ContentTestingUrl                = "https://www.fakku.net/manga/right-now-while-cleaning-the-pool"
 	ContentTestingTag                = "Vanilla"
 	ContentTestingDisplayName        = "Right now, while cleaning the pool"
 	ContentTestingDisplayNameRelated = "Before the Pool Opens"
@@ -44,14 +44,14 @@ func TestContentGetComments_1(t *testing.T) {
 	/* tests to make sure that the functions work */
 	_, err := GetContentComments(ContentTestingCategory, ContentTestingName)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 }
 
 func TestContentGetReadOnline_1(t *testing.T) {
 	onlineContent, err := GetContentReadOnline(ContentTestingCategory, ContentTestingName)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if len(onlineContent.Pages) != 25 {
@@ -62,7 +62,7 @@ func TestContentGetReadOnline_1(t *testing.T) {
 func TestGetContentDownloads_1(t *testing.T) {
 	downloads, err := GetContentDownloads(ContentTestingCategory, ContentTestingName)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if downloads.Total != 1 {
 		t.Errorf("Expected 1 page, got %d pages", downloads.Total)
@@ -80,7 +80,7 @@ func TestGetContentDownloads_1(t *testing.T) {
 func TestGetContentRelated_1(t *testing.T) {
 	related, err := GetRelatedContentAll(ContentTestingCategory, ContentTestingName)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if related.Related[0].Name != ContentTestingDisplayNameRelated {
 		t.Errorf("First entry in related content was %s not %s as expected!", related.Related[0].Name, ContentTestingDisplayNameRelated)
@@ -99,19 +99,18 @@ func TestGetContentRelated_1(t *testing.T) {
 func TestDMCATakedown_1(t *testing.T) {
 	_, err := GetContentReadOnline(CategoryManga, "nanako-san-english")
 	if err == nil {
-		t.Error("DMCA takedown notice not found!")
-	} else {
-		switch err.(type) {
-		case *ErrorStatus: // FUUUUU it is a pointer!
-			q := err.(*ErrorStatus)
-			if q.KnownError {
-				t.Log(err)
-			} else {
-				t.Error(err)
-			}
-		default:
+		t.Fatal("DMCA takedown notice not found!")
+	}
+	switch err.(type) {
+	case *ErrorStatus: // FUUUUU it is a pointer!
+		q := err.(*ErrorStatus)
+		if q.KnownError {
+			t.Log(err)
+		} else {
 			t.Error(err)
 		}
+	default:
+		t.Error(err)
 	}
 }
 
@@ -119,18 +118,17 @@ func TestContentDoesntExist_1(t *testing.T) {
 	_, err := GetContentReadOnline(CategoryManga, "renai-sample-ch01-english")
 	if err == nil {
 		// try a second one since this is a little hard to test :/
-		t.Error("Content does exist!")
-	} else {
-		switch err.(type) {
-		case *ErrorStatus: // FUUUUU it is a pointer!
-			q := err.(*ErrorStatus)
-			if q.KnownError {
-				t.Log(err)
-			} else {
-				t.Error(err)
-			}
-		default:
+		t.Fatal("Content does exist!")
+	}
+	switch err.(type) {
+	case *ErrorStatus: // FUUUUU it is a pointer!
+		q := err.(*ErrorStatus)
+		if q.KnownError {
+			t.Log(err)
+		} else {
 			t.Error(err)
 		}
+	default:
+		t.Error(err)
 	}
 }
