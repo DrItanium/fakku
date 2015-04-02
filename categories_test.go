@@ -31,7 +31,7 @@ func TestGetTags_1(t *testing.T) {
 }
 
 func TestContentSearch_1(t *testing.T) {
-	_, err := GetContentSearchResults("pool")
+	_, err := ContentSearch("pool")
 	if err != nil {
 		t.Error(err)
 	}

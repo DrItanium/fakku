@@ -4,6 +4,7 @@ package fakku
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 )
 
 const (
@@ -74,11 +75,19 @@ type tags struct {
 }
 
 type Tag struct {
-	Name        string `json:"tag_name"`
-	Url         string `json:"tag_url"`
-	ImageSample string `json:"tag_image_sample"`
-	Description string `json:"tag_description"`
+	Name           string `json:"tag_name"`
+	RawUrl         string `json:"tag_url"`
+	RawImageSample string `json:"tag_image_sample"`
+	Description    string `json:"tag_description"`
 }
+
+func (this *Tag) Url() (*url.URL, error) {
+	return url.Parse(this.RawUrl)
+}
+func (this *Tag) ImageSampleUrl() (*url.URL, error) {
+	return url.Parse(this.RawImageSample)
+}
+
 type tagsApiFunction struct{}
 
 func (c tagsApiFunction) Construct() string {
@@ -95,25 +104,25 @@ func Tags() ([]Tag, error) {
 	}
 }
 
-type ContentSearch struct {
-	Content []Content `json:"content"`
-	Total   uint      `json:"total"`
-	Pages   uint      `json:"pages"`
+type ContentSearchResults struct {
+	Content ContentList `json:"content"`
+	Total   uint        `json:"total"`
+	Pages   uint        `json:"pages"`
 }
 
-type ContentSearchApiFunction struct {
+type contentSearchApiFunction struct {
 	Terms string
 	SupportsPagination
 }
 
-func (c ContentSearchApiFunction) Construct() string {
+func (c contentSearchApiFunction) Construct() string {
 	base := fmt.Sprintf("%s/search/%s", ApiHeader, c.Terms)
 	return PaginateString(base, c.Page)
 }
 
-func GetContentSearchResultsPage(terms string, page uint) (*ContentSearch, error) {
-	var c ContentSearch
-	url := ContentSearchApiFunction{
+func ContentSearchPage(terms string, page uint) (*ContentSearchResults, error) {
+	var c ContentSearchResults
+	url := contentSearchApiFunction{
 		Terms:              terms,
 		SupportsPagination: SupportsPagination{Page: page},
 	}
@@ -124,6 +133,6 @@ func GetContentSearchResultsPage(terms string, page uint) (*ContentSearch, error
 	}
 }
 
-func GetContentSearchResults(terms string) (*ContentSearch, error) {
-	return GetContentSearchResultsPage(terms, 0)
+func ContentSearch(terms string) (*ContentSearchResults, error) {
+	return ContentSearchPage(terms, 0)
 }
