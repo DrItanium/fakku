@@ -28,9 +28,6 @@ func (this *Attribute) populate(c map[string]interface{}) {
 func (this *Attribute) String() string {
 	return this.Attribute
 }
-func (this *Attribute) Url() (*url.URL, error) {
-	return url.Parse(this.AttributeLink)
-}
 
 func constructAttributeFields(c map[string]interface{}, field string) AttributeList {
 	try, ok := c[field]
