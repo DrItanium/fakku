@@ -44,17 +44,17 @@ func constructAttributeFields(c map[string]interface{}, field string) AttributeL
 
 type Content struct {
 	Name         string
-	Url          string
+	RawUrl       string
 	Description  string
 	Language     string
 	Category     string
-	Date         float64
+	RawDate      float64
 	FileSize     float64
 	Favorites    float64
 	CommentCount float64
 	Pages        float64
 	Poster       string
-	PosterUrl    string
+	RawPosterUrl string
 	Tags         AttributeList `json:"content_tags"`
 	Translators  AttributeList `json:"content_translators"`
 	Series       AttributeList `json:"content_series"`
@@ -66,6 +66,21 @@ type Content struct {
 }
 type ContentList []Content
 
+func (this *Content) Url() (*url.URL, error) {
+	return url.Parse(this.RawUrl)
+}
+func (this *Content) PosterUrl() (*url.URL, error) {
+	return url.Parse(this.RawPosterUrl)
+}
+func (this *Content) CoverUrl() (*url.URL, error) {
+	return url.Parse(this.Images.Cover)
+}
+func (this *Content) SampleUrl() (*url.URL, error) {
+	return url.Parse(this.Images.Sample)
+}
+func (this *Content) Date() time.Time {
+	return time.Unix(int64(this.RawDate), 0)
+}
 func (c *Content) UnmarshalJSON(b []byte) error {
 	var f interface{}
 	json.Unmarshal(b, &f)
@@ -104,17 +119,17 @@ func (c *Content) UnmarshalJSON(b []byte) error {
 
 func (c *Content) populate(v map[string]interface{}) {
 	c.Name = v["content_name"].(string)
-	c.Url = v["content_url"].(string)
+	c.RawUrl = v["content_url"].(string)
 	c.Description = v["content_description"].(string)
 	c.Language = v["content_language"].(string)
 	c.Category = v["content_category"].(string)
-	c.Date = v["content_date"].(float64)
+	c.RawDate = v["content_date"].(float64)
 	c.FileSize = v["content_filesize"].(float64)
 	c.Favorites = v["content_favorites"].(float64)
 	c.CommentCount = v["content_comments"].(float64)
 	c.Pages = v["content_pages"].(float64)
 	c.Poster = v["content_poster"].(string)
-	c.PosterUrl = v["content_poster_url"].(string)
+	c.RawPosterUrl = v["content_poster_url"].(string)
 	c.Tags = constructAttributeFields(v, "content_tags")
 	c.Translators = constructAttributeFields(v, "content_translators")
 	c.Series = constructAttributeFields(v, "content_series")

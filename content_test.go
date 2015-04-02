@@ -25,7 +25,7 @@ func TestContentGetSimple_1(t *testing.T) {
 	if c.Name != ContentTestingDisplayName {
 		t.Errorf("Expected: %s, Got: %s", ContentTestingDisplayName, c.Name)
 	}
-	if c.Url != ContentTestingUrl {
+	if c.RawUrl != ContentTestingUrl {
 		t.Errorf("Expected: %s, Got: %s", ContentTestingUrl, c.Url)
 	}
 	foundTag := false
