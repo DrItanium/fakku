@@ -18,7 +18,7 @@ const (
 )
 
 func TestContentGetSimple_1(t *testing.T) {
-	c, err := GetContentInformation(ContentTestingCategory, ContentTestingName)
+	c, err := GetContent(ContentTestingCategory, ContentTestingName)
 	if err != nil {
 		t.Error(err)
 	}
@@ -42,7 +42,7 @@ func TestContentGetSimple_1(t *testing.T) {
 
 func TestContentGetComments_1(t *testing.T) {
 	/* tests to make sure that the functions work */
-	_, err := GetContentComments(ContentTestingCategory, ContentTestingName)
+	_, err := ContentComments(ContentTestingCategory, ContentTestingName)
 	if err != nil {
 		t.Fatal(err)
 	}

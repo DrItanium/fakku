@@ -12,28 +12,24 @@ const (
 	ErrorUnknownJsonLayout  = "Got an unknown layout back from content request. API Change?"
 )
 
-type Attribute struct {
-	Attribute     string `json:"attribute"`
-	AttributeLink string `json:"attribute_link"`
-}
 type Content struct {
-	Name        string
-	Url         string
-	Description string
-	Language    string
-	Category    string
-	Date        float64
-	FileSize    float64
-	Favorites   float64
-	Comments    float64
-	Pages       float64
-	Poster      string
-	PosterUrl   string
-	Tags        []*Attribute `json:"content_tags"`
-	Translators []*Attribute `json:"content_translators"`
-	Series      []*Attribute `json:"content_series"`
-	Artists     []*Attribute `json:"content_artists"`
-	Images      struct {
+	Name         string
+	Url          string
+	Description  string
+	Language     string
+	Category     string
+	Date         float64
+	FileSize     float64
+	Favorites    float64
+	CommentCount float64
+	Pages        float64
+	Poster       string
+	PosterUrl    string
+	Tags         []*Attribute `json:"content_tags"`
+	Translators  []*Attribute `json:"content_translators"`
+	Series       []*Attribute `json:"content_series"`
+	Artists      []*Attribute `json:"content_artists"`
+	Images       struct {
 		Cover  string
 		Sample string
 	}
@@ -85,7 +81,7 @@ func (c *Content) populateContent(v map[string]interface{}) {
 	c.Date = v["content_date"].(float64)
 	c.FileSize = v["content_filesize"].(float64)
 	c.Favorites = v["content_favorites"].(float64)
-	c.Comments = v["content_comments"].(float64)
+	c.CommentCount = v["content_comments"].(float64)
 	c.Pages = v["content_pages"].(float64)
 	c.Poster = v["content_poster"].(string)
 	c.PosterUrl = v["content_poster_url"].(string)
@@ -98,6 +94,106 @@ func (c *Content) populateContent(v map[string]interface{}) {
 	z := tmp.(map[string]interface{})
 	c.Images.Cover = z["cover"].(string)
 	c.Images.Sample = z["sample"].(string)
+}
+
+func GetContent(category, name string) (*Content, error) {
+	var c Content
+	url := contentApiFunction{Category: category, Name: name}
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
+
+type contentApiFunction struct {
+	Category string
+	Name     string
+}
+
+func (a contentApiFunction) Construct() string {
+	return fmt.Sprintf("%s/%s/%s", ApiHeader, a.Category, a.Name)
+}
+
+type contentCommentApiFunction struct {
+	contentApiFunction
+	TopComments bool
+	SupportsPagination
+}
+
+func (a contentCommentApiFunction) Construct() string {
+	base := fmt.Sprintf("%s/comments", a.contentApiFunction.Construct())
+	if a.TopComments {
+		return fmt.Sprintf("%s/top", base)
+	} else {
+		return PaginateString(base, a.Page)
+	}
+}
+
+func getContentCommentsGeneric(url ApiFunction) (*Comments, error) {
+	var c Comments
+	if err := ApiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
+func ContentComments(category, name string) (*Comments, error) {
+	url := contentCommentApiFunction{
+		contentApiFunction: contentApiFunction{
+			Category: category,
+			Name:     name,
+		},
+	}
+	return getContentCommentsGeneric(url)
+}
+
+func ContentCommentsPage(category, name string, page uint) (*Comments, error) {
+	url := contentCommentApiFunction{
+		contentApiFunction: contentApiFunction{
+			Category: category,
+			Name:     name,
+		},
+		SupportsPagination: SupportsPagination{Page: page},
+	}
+	return getContentCommentsGeneric(url)
+}
+
+func ContentTopComments(category, name string) (*Comments, error) {
+	url := contentCommentApiFunction{
+		contentApiFunction: contentApiFunction{
+			Category: category,
+			Name:     name,
+		},
+		TopComments: true,
+	}
+	return getContentCommentsGeneric(url)
+}
+
+func (this *Content) TopComments() (*Comments, error) {
+	return ContentTopComments(this.Category, this.Name)
+}
+func (this *Content) CommentsPage(page uint) (*Comments, error) {
+	return ContentCommentsPage(this.Category, this.Name, page)
+}
+func (this *Content) Comments() (*Comments, error) {
+	return ContentComments(this.Category, this.Name)
+}
+
+type Attribute struct {
+	Attribute     string `json:"attribute"`
+	AttributeLink string `json:"attribute_link"`
+}
+
+func NewAttribute(c map[string]interface{}) *Attribute {
+	return &Attribute{
+		Attribute:     c["attribute"].(string),
+		AttributeLink: c["attribute_link"].(string),
+	}
+}
+
+func (a *Attribute) String() string {
+	return a.Attribute
 }
 
 func constructAttributeFields(c map[string]interface{}, field string) []*Attribute {
@@ -114,79 +210,6 @@ func constructAttributeFields(c map[string]interface{}, field string) []*Attribu
 	return attrs
 }
 
-type ContentApiFunction struct {
-	Category string
-	Name     string
-}
-
-func (a ContentApiFunction) Construct() string {
-	return fmt.Sprintf("%s/%s/%s", ApiHeader, a.Category, a.Name)
-}
-
-type ContentCommentApiFunction struct {
-	ContentApiFunction
-	TopComments bool
-	SupportsPagination
-}
-
-func (a ContentCommentApiFunction) Construct() string {
-	base := fmt.Sprintf("%s/comments", a.ContentApiFunction.Construct())
-	if a.TopComments {
-		return fmt.Sprintf("%s/top", base)
-	} else {
-		return PaginateString(base, a.Page)
-	}
-}
-
-func GetContentInformation(category, name string) (*Content, error) {
-	var c Content
-	url := ContentApiFunction{Category: category, Name: name}
-	if err := ApiCall(url, &c); err != nil {
-		return nil, err
-	} else {
-		return &c, nil
-	}
-}
-func getContentCommentsGeneric(url ApiFunction) (*Comments, error) {
-	var c Comments
-	if err := ApiCall(url, &c); err != nil {
-		return nil, err
-	} else {
-		return &c, nil
-	}
-}
-func GetContentComments(category, name string) (*Comments, error) {
-	url := ContentCommentApiFunction{
-		ContentApiFunction: ContentApiFunction{
-			Category: category,
-			Name:     name,
-		},
-	}
-	return getContentCommentsGeneric(url)
-}
-
-func GetContentCommentsPage(category, name string, page uint) (*Comments, error) {
-	url := ContentCommentApiFunction{
-		ContentApiFunction: ContentApiFunction{
-			Category: category,
-			Name:     name,
-		},
-		SupportsPagination: SupportsPagination{Page: page},
-	}
-	return getContentCommentsGeneric(url)
-}
-
-func GetContentTopComments(category, name string) (*Comments, error) {
-	url := ContentCommentApiFunction{
-		ContentApiFunction: ContentApiFunction{
-			Category: category,
-			Name:     name,
-		},
-		TopComments: true,
-	}
-	return getContentCommentsGeneric(url)
-}
-
 type Comment struct {
 	Id         float64 `json:"comment_id"`
 	AttachedId string  `json:"comment_attached_id"`
@@ -195,17 +218,6 @@ type Comment struct {
 	Reputation float64 `json:"comment_reputation"`
 	Text       string  `json:"comment_text"`
 	Date       float64 `json:"comment_date"`
-}
-
-func NewAttribute(c map[string]interface{}) *Attribute {
-	return &Attribute{
-		Attribute:     c["attribute"].(string),
-		AttributeLink: c["attribute_link"].(string),
-	}
-}
-
-func (a *Attribute) String() string {
-	return a.Attribute
 }
 
 type Comments struct {
@@ -266,17 +278,17 @@ func NewPage(id string, c map[string]interface{}) *Page {
 }
 
 type ContentReadOnlineApiFunction struct {
-	ContentApiFunction
+	contentApiFunction
 }
 
 func (a ContentReadOnlineApiFunction) Construct() string {
-	return fmt.Sprintf("%s/read", a.ContentApiFunction.Construct())
+	return fmt.Sprintf("%s/read", a.contentApiFunction.Construct())
 }
 
 func GetContentReadOnline(category, name string) (*ReadOnlineContent, error) {
 	var c ReadOnlineContent
 	url := ContentReadOnlineApiFunction{
-		ContentApiFunction: ContentApiFunction{
+		contentApiFunction: contentApiFunction{
 			Category: category,
 			Name:     name,
 		},
@@ -291,7 +303,7 @@ func GetContentReadOnline(category, name string) (*ReadOnlineContent, error) {
 func GetContentDownloads(category, name string) (*DownloadContent, error) {
 	var c DownloadContent
 	url := ContentDownloadsApiFunction{
-		ContentApiFunction: ContentApiFunction{
+		contentApiFunction: contentApiFunction{
 			Category: category,
 			Name:     name,
 		},
@@ -304,11 +316,11 @@ func GetContentDownloads(category, name string) (*DownloadContent, error) {
 }
 
 type ContentDownloadsApiFunction struct {
-	ContentApiFunction
+	contentApiFunction
 }
 
 func (a ContentDownloadsApiFunction) Construct() string {
-	return fmt.Sprintf("%s/download", a.ContentApiFunction.Construct())
+	return fmt.Sprintf("%s/download", a.contentApiFunction.Construct())
 }
 
 type DownloadContent struct {
@@ -325,18 +337,18 @@ type Download struct {
 	Url           string  `json:"download_url"`
 	Info          string  `json:"download_info"`
 	DownloadCount float64 `json:"download_count"`
-	Time          float64 `json:"download_time"`
+	RawTime       float64 `json:"download_time"`
 	Poster        string  `json:"download_poster"`
-	PosterUrl     string  `json:"download_poster_url"`
+	RawPosterUrl  string  `json:"download_poster_url"`
 }
 
-type ContentRelatedApiFunction struct {
-	ContentApiFunction
+type contentRelatedApiFunction struct {
+	contentApiFunction
 	SupportsPagination
 }
 
-func (a ContentRelatedApiFunction) Construct() string {
-	base := fmt.Sprintf("%s/related", a.ContentApiFunction.Construct())
+func (a contentRelatedApiFunction) Construct() string {
+	base := fmt.Sprintf("%s/related", a.contentApiFunction.Construct())
 	return PaginateString(base, a.Page)
 }
 
@@ -352,8 +364,8 @@ func GetRelatedContentAll(category, name string) (*RelatedContent, error) {
 
 func GetRelatedContent(category, name string, page uint) (*RelatedContent, error) {
 	var c RelatedContent
-	url := ContentRelatedApiFunction{
-		ContentApiFunction: ContentApiFunction{
+	url := contentRelatedApiFunction{
+		contentApiFunction: contentApiFunction{
 			Category: category,
 			Name:     name,
 		},
@@ -364,6 +376,12 @@ func GetRelatedContent(category, name string, page uint) (*RelatedContent, error
 	} else {
 		return &c, nil
 	}
+}
+func (this *Content) RelatedContent() (*RelatedContent, error) {
+	return GetRelatedContentAll(this.Category, this.Name)
+}
+func (this *Content) RelatedContentPage(page uint) (*RelatedContent, error) {
+	return GetRelatedContent(this.Category, this.Name, page)
 }
 
 func (c *RelatedContent) UnmarshalJSON(b []byte) error {
