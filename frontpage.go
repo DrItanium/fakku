@@ -48,11 +48,11 @@ func (c *FrontPagePosts) UnmarshalJSON(b []byte) error {
 		q := v[i].(map[string]interface{})
 		if _, ok := q["content_name"]; ok {
 			var z Content
-			z.populateContent(q)
+			z.populate(q)
 			c.Index[i] = &z
 		} else if _, ok := q["topic_title"]; ok {
 			var k Topic
-			err0 := k.populateTopic(q)
+			err0 := k.populate(q)
 			if err0 != nil {
 				return err0
 			}

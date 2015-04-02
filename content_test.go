@@ -67,7 +67,7 @@ func TestGetContentDownloads_1(t *testing.T) {
 }
 
 func TestGetContentRelated_1(t *testing.T) {
-	related, err := GetRelatedContentAll(ContentTestingCategory, ContentTestingName)
+	related, err := RelatedContent(ContentTestingCategory, ContentTestingName)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -48,22 +48,22 @@ func (c *CategoryIndex) UnmarshalJSON(b []byte) error {
 	latest := m["latest"].([]interface{})
 	c.Latest = make(ContentList, len(latest))
 	for i := 0; i < len(latest); i++ {
-		c.Latest[i].populateContent(latest[i].(map[string]interface{}))
+		c.Latest[i].populate(latest[i].(map[string]interface{}))
 	}
 	favorites := m["favorites"].([]interface{})
 	c.Favorites = make(ContentList, len(favorites))
 	for i := 0; i < len(favorites); i++ {
-		c.Favorites[i].populateContent(favorites[i].(map[string]interface{}))
+		c.Favorites[i].populate(favorites[i].(map[string]interface{}))
 	}
 	popular := m["popular"].([]interface{})
 	c.Popular = make([]Content, len(popular))
 	for i := 0; i < len(popular); i++ {
-		c.Popular[i].populateContent(popular[i].(map[string]interface{}))
+		c.Popular[i].populate(popular[i].(map[string]interface{}))
 	}
 	controversial := m["controversial"].([]interface{})
 	c.Controversial = make([]Content, len(controversial))
 	for i := 0; i < len(controversial); i++ {
-		c.Controversial[i].populateContent(controversial[i].(map[string]interface{}))
+		c.Controversial[i].populate(controversial[i].(map[string]interface{}))
 	}
 	return nil
 }

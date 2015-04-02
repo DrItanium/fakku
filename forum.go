@@ -82,7 +82,7 @@ func (this *Topic) Time() time.Time {
 	return time.Unix(this.RawTime, 0)
 }
 
-func (t *Topic) populateTopic(c map[string]interface{}) error {
+func (t *Topic) populate(c map[string]interface{}) error {
 	t.Title = c["topic_title"].(string)
 	t.RawUrl = c["topic_url"].(string)
 	t.RawTime = int64(c["topic_time"].(float64))

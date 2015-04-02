@@ -76,7 +76,7 @@ func (c *Content) UnmarshalJSON(b []byte) error {
 		switch contents.(type) {
 		case map[string]interface{}:
 			v := contents.(map[string]interface{})
-			c.populateContent(v)
+			c.populate(v)
 			return nil
 		case []interface{}:
 			q := contents.([]interface{})
@@ -102,7 +102,7 @@ func (c *Content) UnmarshalJSON(b []byte) error {
 	}
 }
 
-func (c *Content) populateContent(v map[string]interface{}) {
+func (c *Content) populate(v map[string]interface{}) {
 	c.Name = v["content_name"].(string)
 	c.Url = v["content_url"].(string)
 	c.Description = v["content_description"].(string)
@@ -387,18 +387,18 @@ func (a contentRelatedApiFunction) Construct() string {
 	return PaginateString(base, a.Page)
 }
 
-type RelatedContent struct {
+type RelatedContentList struct {
 	Related ContentList `json:"related"`
 	Total   uint        `json:"total"`
 	Pages   uint        `json:"pages"`
 }
 
-func GetRelatedContentAll(category, name string) (*RelatedContent, error) {
-	return GetRelatedContent(category, name, 0)
+func RelatedContent(category, name string) (*RelatedContentList, error) {
+	return RelatedContentPage(category, name, 0)
 }
 
-func GetRelatedContent(category, name string, page uint) (*RelatedContent, error) {
-	var c RelatedContent
+func RelatedContentPage(category, name string, page uint) (*RelatedContentList, error) {
+	var c RelatedContentList
 	url := contentRelatedApiFunction{
 		contentApiFunction: contentApiFunction{
 			Category: category,
@@ -412,14 +412,14 @@ func GetRelatedContent(category, name string, page uint) (*RelatedContent, error
 		return &c, nil
 	}
 }
-func (this *Content) RelatedContent() (*RelatedContent, error) {
-	return GetRelatedContentAll(this.Category, this.Name)
+func (this *Content) RelatedContent() (*RelatedContentList, error) {
+	return RelatedContent(this.Category, this.Name)
 }
-func (this *Content) RelatedContentPage(page uint) (*RelatedContent, error) {
-	return GetRelatedContent(this.Category, this.Name, page)
+func (this *Content) RelatedContentPage(page uint) (*RelatedContentList, error) {
+	return RelatedContentPage(this.Category, this.Name, page)
 }
 
-func (c *RelatedContent) UnmarshalJSON(b []byte) error {
+func (c *RelatedContentList) UnmarshalJSON(b []byte) error {
 	// slightly different
 	var f interface{}
 	json.Unmarshal(b, &f)
@@ -428,7 +428,7 @@ func (c *RelatedContent) UnmarshalJSON(b []byte) error {
 	v := related.([]interface{})
 	c.Related = make(ContentList, len(v))
 	for i := 0; i < len(v); i++ {
-		c.Related[i].populateContent(v[i].(map[string]interface{}))
+		c.Related[i].populate(v[i].(map[string]interface{}))
 	}
 	c.Total = uint(m["total"].(float64))
 	c.Pages = uint(m["pages"].(float64))
