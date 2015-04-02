@@ -14,6 +14,37 @@ const (
 	ErrorUnknownJsonLayout  = "Got an unknown layout back from content request. API Change?"
 )
 
+type AttributeList []Attribute
+type Attribute struct {
+	Attribute     string `json:"attribute"`
+	AttributeLink string `json:"attribute_link"`
+}
+
+func (this *Attribute) populate(c map[string]interface{}) {
+	this.Attribute = c["attribute"].(string)
+	this.AttributeLink = c["attribute_link"].(string)
+}
+
+func (this *Attribute) String() string {
+	return this.Attribute
+}
+func (this *Attribute) Url() (*url.URL, error) {
+	return url.Parse(this.AttributeLink)
+}
+
+func constructAttributeFields(c map[string]interface{}, field string) AttributeList {
+	try, ok := c[field]
+	if !ok {
+		return nil
+	}
+	tmp := try.([]interface{})
+	attrs := make(AttributeList, len(tmp))
+	for i := 0; i < len(tmp); i++ {
+		attrs[i].populate(tmp[i].(map[string]interface{}))
+	}
+	return attrs
+}
+
 type Content struct {
 	Name         string
 	Url          string
@@ -27,10 +58,10 @@ type Content struct {
 	Pages        float64
 	Poster       string
 	PosterUrl    string
-	Tags         []*Attribute `json:"content_tags"`
-	Translators  []*Attribute `json:"content_translators"`
-	Series       []*Attribute `json:"content_series"`
-	Artists      []*Attribute `json:"content_artists"`
+	Tags         AttributeList `json:"content_tags"`
+	Translators  AttributeList `json:"content_translators"`
+	Series       AttributeList `json:"content_series"`
+	Artists      AttributeList `json:"content_artists"`
 	Images       struct {
 		Cover  string
 		Sample string
@@ -182,51 +213,28 @@ func (this *Content) Comments() (*Comments, error) {
 	return ContentComments(this.Category, this.Name)
 }
 
-type Attribute struct {
-	Attribute     string `json:"attribute"`
-	AttributeLink string `json:"attribute_link"`
-}
-
-func NewAttribute(c map[string]interface{}) *Attribute {
-	return &Attribute{
-		Attribute:     c["attribute"].(string),
-		AttributeLink: c["attribute_link"].(string),
-	}
-}
-
-func (a *Attribute) String() string {
-	return a.Attribute
-}
-
-func constructAttributeFields(c map[string]interface{}, field string) []*Attribute {
-	try, ok := c[field]
-	if !ok {
-		return nil
-	}
-	tmp := try.([]interface{})
-	size := len(tmp)
-	attrs := make([]*Attribute, size)
-	for i := 0; i < size; i++ {
-		attrs[i] = NewAttribute(tmp[i].(map[string]interface{}))
-	}
-	return attrs
-}
-
 type Comment struct {
-	Id         float64 `json:"comment_id"`
-	AttachedId string  `json:"comment_attached_id"`
-	Poster     string  `json:"comment_poster"`
-	PosterUrl  string  `json:"comment_poster_url"`
-	Reputation float64 `json:"comment_reputation"`
-	Text       string  `json:"comment_text"`
-	Date       float64 `json:"comment_date"`
+	Id           float64 `json:"comment_id"`
+	AttachedId   string  `json:"comment_attached_id"`
+	Poster       string  `json:"comment_poster"`
+	RawPosterUrl string  `json:"comment_poster_url"`
+	Reputation   float64 `json:"comment_reputation"`
+	Text         string  `json:"comment_text"`
+	RawDate      float64 `json:"comment_date"`
+}
+
+func (this *Comment) PosterUrl() (*url.URL, error) {
+	return url.Parse(this.RawPosterUrl)
+}
+func (this *Comment) Date() time.Time {
+	return time.Unix(int64(this.RawDate), 0)
 }
 
 type Comments struct {
-	Comments   []*Comment `json:"comments"`
-	PageNumber float64    `json:"page"`
-	Total      float64    `json:"total"`
-	Pages      float64    `json:"pages"`
+	Comments   []Comment `json:"comments"`
+	PageNumber float64   `json:"page"`
+	Total      float64   `json:"total"`
+	Pages      float64   `json:"pages"`
 }
 type PageList []Page
 type ReadOnlineContent struct {
