@@ -12,17 +12,17 @@ const (
 	CategoryVideos    = "videos" // Is this a legal category?
 )
 
-type CategoryIndexApiFunction struct {
+type categoryIndexApiFunction struct {
 	Category string
 }
 
-func (c CategoryIndexApiFunction) Construct() string {
+func (c categoryIndexApiFunction) Construct() string {
 	return fmt.Sprintf("%s/%s", ApiHeader, c.Category)
 }
 
 func GetCategoryIndex(category string) (*CategoryIndex, error) {
 	var c CategoryIndex
-	url := CategoryIndexApiFunction{Category: category}
+	url := categoryIndexApiFunction{Category: category}
 	if err := ApiCall(url, &c); err != nil {
 		return nil, err
 	} else {
@@ -68,7 +68,7 @@ func (c *CategoryIndex) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type Tags struct {
+type tags struct {
 	Tags  []Tag `json:"tags"`
 	Total uint  `json:"total"`
 }
@@ -79,19 +79,19 @@ type Tag struct {
 	ImageSample string `json:"tag_image_sample"`
 	Description string `json:"tag_description"`
 }
-type TagsApiFunction struct{}
+type tagsApiFunction struct{}
 
-func (c TagsApiFunction) Construct() string {
+func (c tagsApiFunction) Construct() string {
 	return fmt.Sprintf("%s/tags", ApiHeader)
 }
 
-func GetTags() (*Tags, error) {
-	var c Tags
-	url := TagsApiFunction{}
+func Tags() ([]Tag, error) {
+	var c tags
+	url := tagsApiFunction{}
 	if err := ApiCall(url, &c); err != nil {
 		return nil, err
 	} else {
-		return &c, nil
+		return c.Tags, nil
 	}
 }
 

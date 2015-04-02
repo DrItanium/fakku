@@ -14,13 +14,13 @@ func TestGetCategoryIndex_1(t *testing.T) {
 }
 
 func TestGetTags_1(t *testing.T) {
-	tags, err := GetTags()
+	tags, err := Tags()
 	foundTag := false
 	if err != nil {
 		t.Error(err)
 	}
-	for i := 0; i < len(tags.Tags); i++ {
-		tag := tags.Tags[i]
+	for i := 0; i < len(tags); i++ {
+		tag := tags[i]
 		if tag.Name == ContentTestingTag {
 			foundTag = true
 		}
