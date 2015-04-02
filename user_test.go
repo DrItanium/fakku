@@ -53,22 +53,43 @@ func TestGetUserAchievements_1(t *testing.T) {
 func TestGetUserPosts_1(t *testing.T) {
 	posts, err := GetUserPosts(TestUserName)
 	if err != nil {
-		t.Fatal(err)
-	}
+		switch err.(type) {
+		case *ErrorStatus: // FUUUUU it is a pointer!
+			q := err.(*ErrorStatus)
+			if q.KnownError {
+				t.Log(err) // if it is a known error (503) then don't fail out as it may not be available
+			} else {
+				t.Fatal(err)
+			}
+		default:
+			t.Fatal(err)
+		}
+	} else {
 
-	if posts.Total < 4554 {
-		t.Error("Number of user posts is not correct!")
+		if posts.Total < 4554 {
+			t.Error("Number of user posts is not correct!")
+		}
 	}
 }
 
 func TestGetUserTopics_1(t *testing.T) {
 	topics, err := GetUserTopics(TestUserName)
 	if err != nil {
-		t.Fatal(err)
-	}
-
-	if topics.Total < 1016 {
-		t.Errorf("Expected at least 1016 topics, got %d", topics.Total)
+		switch err.(type) {
+		case *ErrorStatus: // FUUUUU it is a pointer!
+			q := err.(*ErrorStatus)
+			if q.KnownError {
+				t.Log(err) // if it is a known error (503) then don't fail out as it may not be available
+			} else {
+				t.Fatal(err)
+			}
+		default:
+			t.Fatal(err)
+		}
+	} else {
+		if topics.Total < 1016 {
+			t.Errorf("Expected at least 1016 topics, got %d", topics.Total)
+		}
 	}
 }
 

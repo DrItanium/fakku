@@ -5,8 +5,10 @@ import (
 )
 
 func TestGetCategoryIndex_1(t *testing.T) {
+	// currently this is broken
 	_, err := GetCategoryIndex(CategoryManga)
 	if err != nil {
+		t.Logf("NOTE: that this test is currently broken since GetCategoryIndex returns nothing!")
 		t.Error(err)
 	}
 }
