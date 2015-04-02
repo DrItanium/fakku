@@ -39,9 +39,20 @@ func TestForumTopics_1(t *testing.T) {
 func TestForumPostsApiFunction_1(t *testing.T) {
 	output, err := GetForumPosts("random", "important-quotes")
 	if err != nil {
-		t.Fatal(err)
-	}
-	if output.Topic.Title != "Important Quotes" {
-		t.Error("Didn't get the important quotes topic")
+		switch err.(type) {
+		case *ErrorStatus: // FUUUUU it is a pointer!
+			q := err.(*ErrorStatus)
+			if q.KnownError {
+				t.Log(err) // if it is a known error (503) then don't fail out as it may not be available
+			} else {
+				t.Fatal(err)
+			}
+		default:
+			t.Fatal(err)
+		}
+	} else {
+		if output.Topic.Title != "Important Quotes" {
+			t.Error("Didn't get the important quotes topic")
+		}
 	}
 }

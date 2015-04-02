@@ -7,7 +7,13 @@ import (
 	"net/http"
 )
 
-var ApiHeader = "https://api.fakku.net/"
+const (
+	ResponseOk                         = 200
+	ResponseNotFound                   = 404
+	ResponseUnavailableForLegalReasons = 451 // got DMCA'd son
+	ResponseServiceUnavailable         = 503 // Information unavailable
+	ApiHeader                          = "https://api.fakku.net/"
+)
 
 type ApiFunction interface {
 	ConstructApiFunction() string
@@ -46,13 +52,13 @@ func ApiCall(url ApiFunction, c interface{}) error {
 		return err
 	}
 	switch resp.StatusCode {
-	case 200:
+	case ResponseOk:
 		err = json.Unmarshal(body, &c)
 		if err != nil {
 			return err
 		}
 		return nil
-	case 404, 451, 503:
+	case ResponseNotFound, ResponseUnavailableForLegalReasons, ResponseServiceUnavailable:
 		// right now just harvest the error code
 		var ec ErrorStatus
 		err = json.Unmarshal(body, &ec)
