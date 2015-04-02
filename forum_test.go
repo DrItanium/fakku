@@ -7,7 +7,7 @@ import (
 func TestForumCategoriesApiFunction_1(t *testing.T) {
 	output, err := GetForumCategories()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	result := output.Categories[0]
 
@@ -25,10 +25,9 @@ func TestForumCategoriesApiFunction_1(t *testing.T) {
 func TestForumTopics_1(t *testing.T) {
 	output, err := GetForumTopics("random")
 	if err != nil {
-		//t.Error(err)
-		t.Log(err)
+		t.Fatal(err)
+		//t.Log(err)
 	}
-
 	if output.Forum.Name != "Random" {
 		t.Error("Didn't get the Random forum!")
 	}
@@ -40,9 +39,8 @@ func TestForumTopics_1(t *testing.T) {
 func TestForumPostsApiFunction_1(t *testing.T) {
 	output, err := GetForumPosts("random", "important-quotes")
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
-
 	if output.Topic.Title != "Important Quotes" {
 		t.Error("Didn't get the important quotes topic")
 	}
