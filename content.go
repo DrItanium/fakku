@@ -302,9 +302,28 @@ func GetContentReadOnline(category, name string) (*ReadOnlineContent, error) {
 	}
 }
 
-func GetContentDownloads(category, name string) (*DownloadContent, error) {
-	var c DownloadContent
-	url := ContentDownloadsApiFunction{
+type contentDownloadsApiFunction struct {
+	contentApiFunction
+}
+
+func (a contentDownloadsApiFunction) Construct() string {
+	return fmt.Sprintf("%s/download", a.contentApiFunction.Construct())
+}
+
+type DownloadList []Download
+
+func (this DownloadList) HasDownloads() bool {
+	return len(this) > 0
+}
+
+type downloadContent struct {
+	Downloads DownloadList `json:"downloads"`
+	Total     uint         `json:"total"`
+}
+
+func ContentDownloads(category, name string) (DownloadList, error) {
+	var c downloadContent
+	url := contentDownloadsApiFunction{
 		contentApiFunction: contentApiFunction{
 			Category: category,
 			Name:     name,
@@ -313,25 +332,12 @@ func GetContentDownloads(category, name string) (*DownloadContent, error) {
 	if err := ApiCall(url, &c); err != nil {
 		return nil, err
 	} else {
-		return &c, nil
+		return c.Downloads, nil
 	}
 }
 
-type ContentDownloadsApiFunction struct {
-	contentApiFunction
-}
-
-func (a ContentDownloadsApiFunction) Construct() string {
-	return fmt.Sprintf("%s/download", a.contentApiFunction.Construct())
-}
-
-type DownloadContent struct {
-	Downloads []*Download `json:"downloads"`
-	Total     uint        `json:"total"`
-}
-
-func (this *DownloadContent) HasDownloads() bool {
-	return this.Total > 0
+func (this *Content) Downloads() (DownloadList, error) {
+	return ContentDownloads(this.Category, this.Name)
 }
 
 type Download struct {
