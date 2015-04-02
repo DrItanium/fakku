@@ -42,6 +42,9 @@ func (c *CategoryIndex) UnmarshalJSON(b []byte) error {
 	var f interface{}
 	json.Unmarshal(b, &f)
 	m := f.(map[string]interface{})
+	if _, errExists := m["error"]; errExists {
+		return fmt.Errorf("CategoryIndex request yielded an error!")
+	}
 	latest := m["latest"].([]interface{})
 	c.Latest = make([]*Content, len(latest))
 	for i := 0; i < len(latest); i++ {

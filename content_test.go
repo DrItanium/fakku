@@ -97,8 +97,28 @@ func TestGetContentRelated_1(t *testing.T) {
 
 // Test to see if the DMCA takedowns are correctly caught
 func TestDMCATakedown_1(t *testing.T) {
+	_, err := GetContentReadOnline(CategoryManga, "nanako-san-english")
+	if err == nil {
+		t.Error("DMCA takedown notice not found!")
+	} else {
+		switch err.(type) {
+		case *ErrorStatus: // FUUUUU it is a pointer!
+			q := err.(*ErrorStatus)
+			if q.KnownError {
+				t.Log(err)
+			} else {
+				t.Error(err)
+			}
+		default:
+			t.Error(err)
+		}
+	}
+}
+
+func TestContentDoesntExist_1(t *testing.T) {
 	_, err := GetContentReadOnline(CategoryManga, "renai-sample-ch01-english")
 	if err == nil {
+		// try a second one since this is a little hard to test :/
 		t.Error("DMCA takedown notice not found!")
 	} else {
 		switch err.(type) {

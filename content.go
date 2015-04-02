@@ -202,15 +202,29 @@ func (r *ReadOnlineContent) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	json.Unmarshal(b, &f)
-	m := f.(map[string]interface{})
-	pages := m["pages"]
-	v := pages.(map[string]interface{})
-	r.Pages = make([]*Page, len(v))
-	for i := 0; i < len(v); i++ {
-		ind := strconv.Itoa(i + 1)
-		r.Pages[i] = NewPage(ind, v[ind].(map[string]interface{}))
+	// need to check and make sure that the content exists
+	switch f.(type) {
+	case map[string]interface{}:
+		m := f.(map[string]interface{})
+		pages := m["pages"]
+		v := pages.(map[string]interface{})
+		r.Pages = make([]*Page, len(v))
+		for i := 0; i < len(v); i++ {
+			ind := strconv.Itoa(i + 1)
+			r.Pages[i] = NewPage(ind, v[ind].(map[string]interface{}))
+		}
+		return nil
+	case []interface{}:
+		q := f.([]interface{})
+		if len(q) == 0 {
+			// doesn't exist
+			return fmt.Errorf("Content doesn't exist")
+		} else {
+			return fmt.Errorf("Got unknown json data back from content request. API Change?")
+		}
+	default:
+		return fmt.Errorf("Got an unknown layout back from content request. API Change?")
 	}
-	return nil
 }
 
 type Page struct {
