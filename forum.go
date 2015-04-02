@@ -2,62 +2,90 @@ package fakku
 
 import (
 	"fmt"
+	"net/url"
+	"time"
 )
 
-type ForumCategoriesApiFunction struct{}
+type forumCategoriesApiFunction struct{}
 
-func (c ForumCategoriesApiFunction) Construct() string {
+func (c forumCategoriesApiFunction) Construct() string {
 	return fmt.Sprintf("%s/forums", ApiHeader)
 }
 
-func GetForumCategories() (*ForumCategories, error) {
-	var c ForumCategories
-	url := ForumCategoriesApiFunction{}
+func GetForumCategories() ([]ForumCategory, error) {
+	var c forumCategoriesContainer
+	url := forumCategoriesApiFunction{}
 	if err := ApiCall(url, &c); err != nil {
 		return nil, err
 	} else {
-		return &c, nil
+		return c.Categories, nil
 	}
 }
 
-type ForumCategories struct {
-	Categories []*ForumCategory `json:"categories"`
+type forumCategoriesContainer struct {
+	Categories []ForumCategory `json:"categories"`
 }
 type ForumCategory struct {
-	Title  string   `json:"category_title"`
-	Order  uint     `json:"category_order"`
-	Forums []*Forum `json:"forums"`
+	Title  string  `json:"category_title"`
+	Order  uint    `json:"category_order"`
+	Forums []Forum `json:"forums"`
 }
 
 type Forum struct {
-	Name        string `json:"forum_name"`
-	Description string `json:"forum_description"`
-	Url         string `json:"forum_url"`
-	Posts       uint   `json:"forum_posts"`
-	Topics      uint   `json:"forum_topics"`
-	Silent      uint   `json:"forum_silent"`
-	RecentTopic *Topic `json:"forum_recent_topic"`
-	// There are more....
+	Name        string  `json:"forum_name"`
+	Description string  `json:"forum_description"`
+	RawUrl      string  `json:"forum_url"`
+	Posts       uint    `json:"forum_posts"`
+	TopicCount  uint    `json:"forum_topics"`
+	Silent      uint    `json:"forum_silent"`
+	Total       uint    `json:"total"`
+	Page        uint    `json:"page"`
+	PageCount   uint    `json:"pages"`
+	Topics      []Topic `json:"topics"`
+	RecentTopic Topic   `json:"forum_recent_topic"` // this is used in some calls but not others :/
+}
+
+func (this *Forum) Url() (*url.URL, error) {
+	return url.Parse(this.RawUrl)
+}
+func (this *Forum) IsSlient() bool {
+	return this.Silent == 1
 }
 
 type Topic struct {
-	Title       string `json:"topic_title"`
-	Url         string `json:"topic_url"`
-	Time        uint   `json:"topic_time"`
-	FirstPostId uint   `json:"topic_first_post_id"`
-	LastPostId  uint   `json:"topic_last_post_id"`
-	FrontPage   uint   `json:"front_page"`
-	Status      uint   `json:"topic_status"`
-	Vote        uint   `json:"topic_vote"`
-	Type        uint   `json:"topic_type"`
-	Poster      string `json:"topic_poster"`
-	PosterUrl   string `json:"topic_poster_url"`
+	Title        string `json:"topic_title"`
+	RawUrl       string `json:"topic_url"`
+	TopicTime    uint   `json:"topic_time"`
+	FirstPostId  uint   `json:"topic_first_post_id"`
+	LastPostId   uint   `json:"topic_last_post_id"`
+	FrontPage    uint   `json:"front_page"`
+	Status       uint   `json:"topic_status"`
+	Vote         uint   `json:"topic_vote"`
+	Type         uint   `json:"topic_type"`
+	Poster       string `json:"topic_poster"`
+	RawPosterUrl string `json:"topic_poster_url"`
+	RawTime      int64  `json:"topic_url"`
 }
 
-func (t *Topic) populateTopic(c map[string]interface{}) {
+func (this *Topic) OnFrontPage() bool {
+	return this.FrontPage == 1
+}
+func (this *Topic) Url() (*url.URL, error) {
+	return url.Parse(this.RawUrl)
+}
+
+func (this *Topic) PosterUrl() (*url.URL, error) {
+	return url.Parse(this.RawPosterUrl)
+}
+
+func (this *Topic) Time() time.Time {
+	return time.Unix(this.RawTime, 0)
+}
+
+func (t *Topic) populateTopic(c map[string]interface{}) error {
 	t.Title = c["topic_title"].(string)
-	t.Url = c["topic_url"].(string)
-	t.Time = uint(c["topic_time"].(float64))
+	t.RawUrl = c["topic_url"].(string)
+	t.RawTime = int64(c["topic_time"].(float64))
 	t.FirstPostId = uint(c["topic_first_post_id"].(float64))
 	t.LastPostId = uint(c["topic_last_post_id"].(float64))
 	if _, ok := c["front_page"]; ok {
@@ -69,7 +97,8 @@ func (t *Topic) populateTopic(c map[string]interface{}) {
 	}
 	t.Type = uint(c["topic_type"].(float64))
 	t.Poster = c["topic_poster"].(string)
-	t.PosterUrl = c["topic_poster_url"].(string)
+	t.RawPosterUrl = c["topic_poster_url"].(string)
+	return nil
 }
 
 type ForumTopicsApiFunction struct {

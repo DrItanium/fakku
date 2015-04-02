@@ -52,7 +52,11 @@ func (c *FrontPagePosts) UnmarshalJSON(b []byte) error {
 			c.Index[i] = &z
 		} else if _, ok := q["topic_title"]; ok {
 			var k Topic
-			k.populateTopic(q)
+			err0 := k.populateTopic(q)
+			if err0 != nil {
+				return err0
+			}
+			fmt.Println(k)
 			c.Index[i] = k
 		} else {
 			return &UnknownEntry{Message: fmt.Sprintf("Couldn't figure out front page entry type %s", q)}
@@ -78,9 +82,9 @@ func GetFrontPagePoll() (*FrontPagePoll, error) {
 }
 
 type FrontPagePoll struct {
-	Question string        `json:"poll_question"`
-	Url      string        `json:"poll_url"`
-	Options  []*PollOption `json:"poll_options"`
+	Question string       `json:"poll_question"`
+	Url      string       `json:"poll_url"`
+	Options  []PollOption `json:"poll_options"`
 }
 
 type PollOption struct {
@@ -97,14 +101,11 @@ func (c *FrontPagePoll) UnmarshalJSON(b []byte) error {
 	c.Url = q["poll_url"].(string)
 	tmp := q["poll_options"]
 	ops := tmp.([]interface{})
-	c.Options = make([]*PollOption, len(ops))
+	c.Options = make([]PollOption, len(ops))
 	for i := 0; i < len(ops); i++ {
 		lookup := ops[i].(map[string]interface{})
-		option := &PollOption{
-			Text:  lookup["option_text"].(string),
-			Votes: uint(lookup["option_votes"].(float64)),
-		}
-		c.Options[i] = option
+		c.Options[i].Text = lookup["option_text"].(string)
+		c.Options[i].Votes = uint(lookup["option_votes"].(float64))
 	}
 	return nil
 }

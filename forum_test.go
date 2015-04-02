@@ -9,7 +9,7 @@ func TestForumCategoriesApiFunction_1(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	result := output.Categories[0]
+	result := output[0]
 
 	if result.Title != "FAKKU" {
 		t.Error("Didn't get FAKKU forum!")
