@@ -3,7 +3,9 @@ package fakku
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strconv"
+	"time"
 )
 
 const (
@@ -334,12 +336,22 @@ func (this *DownloadContent) HasDownloads() bool {
 
 type Download struct {
 	Type          string  `json:"download_type"`
-	Url           string  `json:"download_url"`
+	RawUrl        string  `json:"download_url"`
 	Info          string  `json:"download_info"`
 	DownloadCount float64 `json:"download_count"`
 	RawTime       float64 `json:"download_time"`
 	Poster        string  `json:"download_poster"`
 	RawPosterUrl  string  `json:"download_poster_url"`
+}
+
+func (this *Download) Url() (*url.URL, error) {
+	return url.Parse(this.RawUrl)
+}
+func (this *Download) PosterUrl() (*url.URL, error) {
+	return url.Parse(this.RawPosterUrl)
+}
+func (this *Download) Time() time.Time {
+	return time.Unix(int64(this.RawTime), 0)
 }
 
 type contentRelatedApiFunction struct {
