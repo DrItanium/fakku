@@ -4,6 +4,7 @@ package fakku
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 )
 
 const (
@@ -74,11 +75,19 @@ type tags struct {
 }
 
 type Tag struct {
-	Name        string `json:"tag_name"`
-	Url         string `json:"tag_url"`
-	ImageSample string `json:"tag_image_sample"`
-	Description string `json:"tag_description"`
+	Name           string `json:"tag_name"`
+	RawUrl         string `json:"tag_url"`
+	RawImageSample string `json:"tag_image_sample"`
+	Description    string `json:"tag_description"`
 }
+
+func (this *Tag) Url() (*url.URL, error) {
+	return url.Parse(this.RawUrl)
+}
+func (this *Tag) ImageSampleUrl() (*url.URL, error) {
+	return url.Parse(this.RawImageSample)
+}
+
 type tagsApiFunction struct{}
 
 func (c tagsApiFunction) Construct() string {
