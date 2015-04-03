@@ -13,6 +13,7 @@ const (
 	ResponseUnavailableForLegalReasons = 451 // got DMCA'd son
 	ResponseServiceUnavailable         = 503 // Information unavailable
 	apiHeader                          = "https://api.fakku.net/"
+	https                              = "https:"
 )
 
 type apiFunction interface {
