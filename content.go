@@ -19,6 +19,10 @@ const (
 	Doujinshi = "doujinshi"
 )
 
+func LegalCategory(category string) bool {
+	return category == Manga || category == Doujinshi
+}
+
 type AttributeList []Attribute
 type Attribute struct {
 	Attribute     string `json:"attribute"`
