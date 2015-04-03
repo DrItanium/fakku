@@ -14,6 +14,11 @@ const (
 	ErrorUnknownJsonLayout  = "Got an unknown layout back from content request. API Change?"
 )
 
+const (
+	Manga     = "manga"
+	Doujinshi = "doujinshi"
+)
+
 type AttributeList []Attribute
 type Attribute struct {
 	Attribute     string `json:"attribute"`
