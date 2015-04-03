@@ -3,6 +3,7 @@ package fakku
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
 	"strconv"
 	"time"
@@ -72,20 +73,21 @@ type Content struct {
 		Cover  string
 		Sample string
 	}
+	rawName string
 }
 type ContentList []Content
 
 func (this *Content) Url() (*url.URL, error) {
-	return url.Parse(this.RawUrl)
+	return url.Parse(https + this.RawUrl)
 }
 func (this *Content) PosterUrl() (*url.URL, error) {
-	return url.Parse(this.RawPosterUrl)
+	return url.Parse(https + this.RawPosterUrl)
 }
 func (this *Content) CoverUrl() (*url.URL, error) {
-	return url.Parse(this.Images.Cover)
+	return url.Parse(https + this.Images.Cover)
 }
 func (this *Content) SampleUrl() (*url.URL, error) {
-	return url.Parse(this.Images.Sample)
+	return url.Parse(https + this.Images.Sample)
 }
 func (this *Content) Date() time.Time {
 	return time.Unix(int64(this.RawDate), 0)
@@ -156,6 +158,7 @@ func GetContent(category, name string) (*Content, error) {
 	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
+		c.rawName = name
 		return &c, nil
 	}
 }
@@ -177,6 +180,7 @@ type contentCommentApiFunction struct {
 
 func (a contentCommentApiFunction) Construct() string {
 	base := fmt.Sprintf("%s/comments", a.contentApiFunction.Construct())
+	log.Printf("url: %s", base)
 	if a.TopComments {
 		return fmt.Sprintf("%s/top", base)
 	} else {
@@ -225,13 +229,13 @@ func ContentTopComments(category, name string) (*Comments, error) {
 }
 
 func (this *Content) TopComments() (*Comments, error) {
-	return ContentTopComments(this.Category, this.Name)
+	return ContentTopComments(this.Category, this.rawName)
 }
 func (this *Content) CommentsPage(page uint) (*Comments, error) {
-	return ContentCommentsPage(this.Category, this.Name, page)
+	return ContentCommentsPage(this.Category, this.rawName, page)
 }
 func (this *Content) Comments() (*Comments, error) {
-	return ContentComments(this.Category, this.Name)
+	return ContentComments(this.Category, this.rawName)
 }
 
 type Comment struct {
