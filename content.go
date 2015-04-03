@@ -239,8 +239,8 @@ func (this *Content) Comments() (*Comments, error) {
 }
 
 type Comment struct {
-	Id           float64 `json:"comment_id"`
-	AttachedId   string  `json:"comment_attached_id"`
+	Id           int     `json:"comment_id"`
+	AttachedId   int     `json:"comment_attached_id"`
 	Poster       string  `json:"comment_poster"`
 	RawPosterUrl string  `json:"comment_poster_url"`
 	Reputation   float64 `json:"comment_reputation"`
@@ -257,9 +257,9 @@ func (this *Comment) Date() time.Time {
 
 type Comments struct {
 	Comments   []Comment `json:"comments"`
-	PageNumber float64   `json:"page"`
-	Total      float64   `json:"total"`
-	Pages      float64   `json:"pages"`
+	PageNumber int       `json:"page"`
+	Total      int       `json:"total"`
+	Pages      int       `json:"pages"`
 }
 type PageList []Page
 type ReadOnlineContent struct {
