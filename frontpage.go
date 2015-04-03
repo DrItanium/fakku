@@ -3,20 +3,21 @@ package fakku
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 )
 
-type FrontPagePostsApiFunction struct {
+type frontPagePostsApiFunction struct {
 	supportsPagination
 }
 
-func (c FrontPagePostsApiFunction) Construct() string {
+func (c frontPagePostsApiFunction) Construct() string {
 	base := fmt.Sprintf("%s/index", apiHeader)
 	return paginateString(base, c.Page)
 }
 
 func GetFrontPagePostsPage(page uint) (*FrontPagePosts, error) {
 	var c FrontPagePosts
-	url := FrontPagePostsApiFunction{
+	url := frontPagePostsApiFunction{
 		supportsPagination: supportsPagination{Page: page},
 	}
 	if err := apiCall(url, &c); err != nil {
@@ -30,8 +31,9 @@ func GetFrontPage() (*FrontPagePosts, error) {
 	return GetFrontPagePostsPage(0)
 }
 
+type FrontPageList []interface{}
 type FrontPagePosts struct {
-	Index []interface{} `json:"index"`
+	Index FrontPageList `json:"index"`
 	Total uint          `json:"total"`
 }
 
@@ -64,15 +66,15 @@ func (c *FrontPagePosts) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type FrontPagePollApiFunction struct{}
+type frontPagePollApiFunction struct{}
 
-func (c FrontPagePollApiFunction) Construct() string {
+func (c frontPagePollApiFunction) Construct() string {
 	return fmt.Sprintf("%s/poll", apiHeader)
 }
 
 func GetFrontPagePoll() (*FrontPagePoll, error) {
 	var c FrontPagePoll
-	url := FrontPagePollApiFunction{}
+	url := frontPagePollApiFunction{}
 	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
@@ -80,15 +82,24 @@ func GetFrontPagePoll() (*FrontPagePoll, error) {
 	}
 }
 
+type PollOptionList []PollOption
 type FrontPagePoll struct {
-	Question string       `json:"poll_question"`
-	Url      string       `json:"poll_url"`
-	Options  []PollOption `json:"poll_options"`
+	Question string         `json:"poll_question"`
+	RawUrl   string         `json:"poll_url"`
+	Options  PollOptionList `json:"poll_options"`
+}
+
+func (this *FrontPagePoll) Url() (*url.URL, error) {
+	return url.Parse(this.RawUrl)
 }
 
 type PollOption struct {
 	Text  string `json:"option_text"`
 	Votes uint   `json:"option_votes"`
+}
+
+func (this *PollOption) String() string {
+	return fmt.Sprintf("%s - %d", this.Text, this.Votes)
 }
 
 func (c *FrontPagePoll) UnmarshalJSON(b []byte) error {
@@ -97,7 +108,7 @@ func (c *FrontPagePoll) UnmarshalJSON(b []byte) error {
 	m := f.(map[string]interface{})
 	q := m["poll"].(map[string]interface{})
 	c.Question = q["poll_question"].(string)
-	c.Url = q["poll_url"].(string)
+	c.RawUrl = q["poll_url"].(string)
 	tmp := q["poll_options"]
 	ops := tmp.([]interface{})
 	c.Options = make([]PollOption, len(ops))
@@ -109,15 +120,15 @@ func (c *FrontPagePoll) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type FrontPageFeaturedTopicsApiFunction struct{}
+type frontPageFeaturedTopicsApiFunction struct{}
 
-func (c FrontPageFeaturedTopicsApiFunction) Construct() string {
+func (c frontPageFeaturedTopicsApiFunction) Construct() string {
 	return fmt.Sprintf("%s/featured", apiHeader)
 }
 
 func GetFrontPageFeaturedTopics() (*FrontPageFeaturedTopics, error) {
 	var c FrontPageFeaturedTopics
-	url := FrontPageFeaturedTopicsApiFunction{}
+	url := frontPageFeaturedTopicsApiFunction{}
 	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
@@ -126,6 +137,6 @@ func GetFrontPageFeaturedTopics() (*FrontPageFeaturedTopics, error) {
 }
 
 type FrontPageFeaturedTopics struct {
-	Topics []*Topic `json:"topics"`
-	Total  uint     `json:"total"`
+	Topics []Topic `json:"topics"`
+	Total  uint    `json:"total"`
 }
