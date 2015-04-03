@@ -339,7 +339,7 @@ func ReadOnline(category, name string) (*ReadOnlineContent, error) {
 }
 
 func (this *Content) ReadOnline() (PageList, error) {
-	element, err := ReadOnline(this.Category, this.Name)
+	element, err := ReadOnline(this.Category, this.rawName)
 	if err != nil {
 		return nil, err
 	} else {
@@ -382,7 +382,7 @@ func ContentDownloads(category, name string) (DownloadList, error) {
 }
 
 func (this *Content) Downloads() (DownloadList, error) {
-	return ContentDownloads(this.Category, this.Name)
+	return ContentDownloads(this.Category, this.rawName)
 }
 
 type Download struct {
@@ -441,10 +441,10 @@ func RelatedContentPage(category, name string, page uint) (*RelatedContentList, 
 	}
 }
 func (this *Content) RelatedContent() (*RelatedContentList, error) {
-	return RelatedContent(this.Category, this.Name)
+	return RelatedContent(this.Category, this.rawName)
 }
 func (this *Content) RelatedContentPage(page uint) (*RelatedContentList, error) {
-	return RelatedContentPage(this.Category, this.Name, page)
+	return RelatedContentPage(this.Category, this.rawName, page)
 }
 
 func (c *RelatedContentList) UnmarshalJSON(b []byte) error {
