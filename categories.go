@@ -13,6 +13,10 @@ const (
 	CategoryVideos    = "videos" // Is this a legal category?
 )
 
+func LegalCategory(category string) bool {
+	return category == CategoryManga || category == CategoryDoujinshi
+}
+
 type categoryIndexApiFunction struct {
 	Category string
 }
@@ -30,6 +34,14 @@ func GetCategoryIndex(category string) (*CategoryIndex, error) {
 		return &c, nil
 	}
 
+}
+
+func Manga() (*CategoryIndex, error) {
+	return GetCategoryIndex(CategoryManga)
+}
+
+func Doujinshi() (*CategoryIndex, error) {
+	return GetCategoryIndex(CategoryDoujinshi)
 }
 
 type CategoryIndex struct {
@@ -117,37 +129,4 @@ func Tags() ([]Tag, error) {
 			return c.Tags, nil
 		}
 	}
-}
-
-type ContentSearchResults struct {
-	Content ContentList `json:"content"`
-	Total   uint        `json:"total"`
-	Pages   uint        `json:"pages"`
-}
-
-type contentSearchApiFunction struct {
-	Terms string
-	supportsPagination
-}
-
-func (c contentSearchApiFunction) Construct() string {
-	base := fmt.Sprintf("%s/search/%s", apiHeader, c.Terms)
-	return paginateString(base, c.Page)
-}
-
-func ContentSearchPage(terms string, page uint) (*ContentSearchResults, error) {
-	var c ContentSearchResults
-	url := contentSearchApiFunction{
-		Terms:              terms,
-		supportsPagination: supportsPagination{Page: page},
-	}
-	if err := apiCall(url, c); err != nil {
-		return nil, err
-	} else {
-		return &c, nil
-	}
-}
-
-func ContentSearch(terms string) (*ContentSearchResults, error) {
-	return ContentSearchPage(terms, 0)
 }
