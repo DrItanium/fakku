@@ -35,13 +35,10 @@ type UserProfile struct {
 	Username            string `json:"user_username"`
 	RawUrl              string `json:"user_url"`
 	Rank                string `json:"user_rank"`
-	Avatar              string `json:"user_avatar"`
-	AvatarWidth         uint   `json:"user_avatar_width"`
-	AvatarHeight        uint   `json:"user_avatar_height"`
+	RawAvatar           string `json:"user_avatar"`
 	RawRegistrationDate int64  `json:"user_registration_date"`
 	RawLastVisit        int64  `json:"user_last_visit"`
 	Subscribed          uint   `json:"user_subscribed"`
-	Timezone            int    `json:"user_timezone"`
 	PostCount           uint   `json:"user_posts"`
 	Topics              uint   `json:"user_topics"`
 	CommentCount        uint   `json:"user_comments"`
@@ -77,7 +74,7 @@ func (this *UserProfile) FavoritesPage(page uint) (*UserFavorites, error) {
 }
 
 func (this *UserProfile) AvatarUrl() (*url.URL, error) {
-	return url.Parse(this.Avatar)
+	return url.Parse(this.RawAvatar)
 }
 
 type userFavoritesApiFunction struct {
