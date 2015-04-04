@@ -46,14 +46,10 @@ type UserProfile struct {
 	ForumReputation     int    `json:"user_forum_reputation"`
 	CommentReputation   int    `json:"user_comment_reputation"`
 	RawGold             uint   `json:"user_gold"`
-	RawOnline           uint   `json:"user_online"`
 }
 
 func (this *UserProfile) Gold() bool {
 	return this.RawGold == 1
-}
-func (this *UserProfile) Online() bool {
-	return this.RawOnline == 1
 }
 func (this *UserProfile) Url() (*url.URL, error) {
 	return url.Parse(this.RawUrl)
@@ -108,45 +104,6 @@ type UserFavorites struct {
 	Favorites ContentList `json:"favorites"`
 	Total     uint        `json:"total"`
 	Pages     uint        `json:"pages"`
-}
-
-type userAchievementsApiFunction struct {
-	userApiFunction
-}
-
-func (c userAchievementsApiFunction) Construct() string {
-	return fmt.Sprintf("%s/achievements", c.userApiFunction.Construct())
-}
-
-func GetUserAchievements(user string) (*UserAchievements, error) {
-	var c UserAchievements
-	url := userAchievementsApiFunction{
-		userApiFunction: userApiFunction{Name: user},
-	}
-	if err := apiCall(url, &c); err != nil {
-		return nil, err
-	} else {
-		return &c, nil
-	}
-}
-
-type UserAchievements struct {
-	Achievements []*UserAchievement `json:"achievements"`
-	Total        uint               `json:"total"`
-}
-type UserAchievement struct {
-	Name        string `json:"achievement_name"`
-	Description string `json:"achievement_description"`
-	Icon        string `json:"achievement_icon"`
-	Class       string `json:"achievement_class"`
-	RawDate     int64  `json:"achievement_date"`
-}
-
-func (this *UserAchievement) Date() time.Time {
-	return time.Unix(this.RawDate, 0)
-}
-func (this *UserAchievement) IconUrl() (*url.URL, error) {
-	return url.Parse(this.Icon)
 }
 
 type userPostsApiFunction struct {

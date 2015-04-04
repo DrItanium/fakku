@@ -38,10 +38,10 @@ func TestGetUserAchievements_1(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for i := uint(0); i < achievements.Total; i++ {
-		tmp := achievements.Achievements[i]
-		t.Logf("Achievement: %s - %s", tmp.Name, tmp.Description)
-		if tmp.Name == TestAchievementName {
+	count := len(achievements)
+	for i := 0; i < count; i++ {
+		t.Logf("%s", achievements[i])
+		if achievements[i].Name == TestAchievementName {
 			foundTargetAchievement = true
 		}
 	}
