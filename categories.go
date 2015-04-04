@@ -111,7 +111,11 @@ func Tags() ([]Tag, error) {
 	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
-		return c.Tags, nil
+		if c.Total != uint(len(c.Tags)) {
+			return nil, fmt.Errorf("Count mismatch! Expected %d tags but got %d instead!", c.Total, len(c.Tags))
+		} else {
+			return c.Tags, nil
+		}
 	}
 }
 
