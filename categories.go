@@ -40,33 +40,44 @@ type CategoryIndex struct {
 }
 
 func (c *CategoryIndex) UnmarshalJSON(b []byte) error {
+	var err error
 	var f interface{}
 	json.Unmarshal(b, &f)
 	m := f.(map[string]interface{})
 	if _, errExists := m["error"]; errExists {
 		return fmt.Errorf("CategoryIndex request yielded an error!")
 	}
-	latest := m["latest"].([]interface{})
-	c.Latest = make(ContentList, len(latest))
-	for i := 0; i < len(latest); i++ {
-		c.Latest[i].populate(latest[i].(map[string]interface{}))
+	c.Latest, err = populateCategory("latest", m)
+	if err != nil {
+		return err
 	}
-	favorites := m["favorites"].([]interface{})
-	c.Favorites = make(ContentList, len(favorites))
-	for i := 0; i < len(favorites); i++ {
-		c.Favorites[i].populate(favorites[i].(map[string]interface{}))
+	c.Favorites, err = populateCategory("favorites", m)
+	if err != nil {
+		return err
 	}
-	popular := m["popular"].([]interface{})
-	c.Popular = make([]Content, len(popular))
-	for i := 0; i < len(popular); i++ {
-		c.Popular[i].populate(popular[i].(map[string]interface{}))
+
+	c.Popular, err = populateCategory("popular", m)
+	if err != nil {
+		return err
 	}
-	controversial := m["controversial"].([]interface{})
-	c.Controversial = make([]Content, len(controversial))
-	for i := 0; i < len(controversial); i++ {
-		c.Controversial[i].populate(controversial[i].(map[string]interface{}))
+	c.Controversial, err = populateCategory("controversial", m)
+	if err != nil {
+		return err
 	}
+
 	return nil
+}
+func populateCategory(category string, container map[string]interface{}) (ContentList, error) {
+	q, result := container[category].([]interface{})
+	if !result {
+		return nil, fmt.Errorf("Category %s does not exist!", category)
+	}
+	l := make(ContentList, len(q))
+	for i := 0; i < len(q); i++ {
+		l[i].populate(q[i].(map[string]interface{}))
+	}
+	return l, nil
+
 }
 
 type tags struct {
