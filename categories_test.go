@@ -4,9 +4,17 @@ import (
 	"testing"
 )
 
-func TestGetCategoryIndex_1(t *testing.T) {
+func Test_NewestManga_1(t *testing.T) {
 	// currently this is broken
-	_, err := GetCategoryIndex(CategoryManga)
+	_, err := NewestManga()
+	if err != nil {
+		t.Logf("NOTE: that this test is currently broken since GetCategoryIndex returns nothing!")
+		t.Error(err)
+	}
+}
+func Test_NewestDoujinshi_1(t *testing.T) {
+	// currently this is broken
+	_, err := NewestDoujinshi()
 	if err != nil {
 		t.Logf("NOTE: that this test is currently broken since GetCategoryIndex returns nothing!")
 		t.Error(err)

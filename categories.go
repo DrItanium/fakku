@@ -2,7 +2,6 @@
 package fakku
 
 import (
-	"encoding/json"
 	"fmt"
 )
 
@@ -18,75 +17,136 @@ func LegalCategory(category string) bool {
 
 type categoryIndexApiFunction struct {
 	Category string
+	Name     string
 }
 
 func (c categoryIndexApiFunction) Construct() string {
-	return fmt.Sprintf("%s/%s", apiHeader, c.Category)
+	return fmt.Sprintf("%s/%s/%s", apiHeader, c.Category, c.Name)
 }
 
-func GetCategoryIndex(category string) (*CategoryIndex, error) {
-	var c CategoryIndex
-	url := categoryIndexApiFunction{Category: category}
+func CategoryIndex(category, name string, c interface{}) error {
+	url := categoryIndexApiFunction{
+		Category: category,
+		Name:     name,
+	}
 	if err := apiCall(url, &c); err != nil {
+		return err
+	} else {
+		return nil
+	}
+
+}
+
+func MangaCategoryIndex(name string, c interface{}) error {
+	return CategoryIndex(CategoryManga, name, c)
+}
+
+func DoujinshiCategoryIndex(name string, c interface{}) error {
+	return CategoryIndex(CategoryDoujinshi, name, c)
+}
+
+type newestCategory struct {
+	Collection ContentList `json:"newest"`
+}
+type englishCategory struct {
+	Collection ContentList `json:"english"`
+}
+type favoritesCategory struct {
+	Collection ContentList `json:"favorites"`
+}
+type popularCategory struct {
+	Collection ContentList `json:"popular"`
+}
+type controversialCategory struct {
+	Collection ContentList `json:"controversial"`
+}
+
+func ControversialManga() (ContentList, error) {
+	var q controversialCategory
+	if err := MangaCategoryIndex("controversial", &q); err != nil {
 		return nil, err
 	} else {
-		return &c, nil
+		return q.Collection, nil
 	}
-
 }
 
-func Manga() (*CategoryIndex, error) {
-	return GetCategoryIndex(CategoryManga)
+func ControversialDoujinshi() (ContentList, error) {
+	var q controversialCategory
+	if err := DoujinshiCategoryIndex("controversial", &q); err != nil {
+		return nil, err
+	} else {
+		return q.Collection, nil
+	}
 }
 
-func Doujinshi() (*CategoryIndex, error) {
-	return GetCategoryIndex(CategoryDoujinshi)
+func PopularManga() (ContentList, error) {
+	var q popularCategory
+	if err := MangaCategoryIndex("popular", &q); err != nil {
+		return nil, err
+	} else {
+		return q.Collection, nil
+	}
 }
 
-type CategoryIndex struct {
-	Latest        ContentList
-	Favorites     ContentList
-	Popular       ContentList
-	Controversial ContentList
+func PopularDoujinshi() (ContentList, error) {
+	var q popularCategory
+	if err := DoujinshiCategoryIndex("popular", &q); err != nil {
+		return nil, err
+	} else {
+		return q.Collection, nil
+	}
 }
 
-func (c *CategoryIndex) UnmarshalJSON(b []byte) error {
-	var err error
-	var f interface{}
-	json.Unmarshal(b, &f)
-	m := f.(map[string]interface{})
-	if _, errExists := m["error"]; errExists {
-		return fmt.Errorf("CategoryIndex request yielded an error!")
+func FavoritesManga() (ContentList, error) {
+	var q favoritesCategory
+	if err := MangaCategoryIndex("favorites", &q); err != nil {
+		return nil, err
+	} else {
+		return q.Collection, nil
 	}
-	c.Latest, err = populateCategory("latest", m)
-	if err != nil {
-		return err
-	}
-	c.Favorites, err = populateCategory("favorites", m)
-	if err != nil {
-		return err
-	}
-
-	c.Popular, err = populateCategory("popular", m)
-	if err != nil {
-		return err
-	}
-	c.Controversial, err = populateCategory("controversial", m)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
-func populateCategory(category string, container map[string]interface{}) (ContentList, error) {
-	q, result := container[category].([]interface{})
-	if !result {
-		return nil, fmt.Errorf("Category %s does not exist!", category)
-	}
-	l := make(ContentList, len(q))
-	for i := 0; i < len(q); i++ {
-		l[i].populate(q[i].(map[string]interface{}))
-	}
-	return l, nil
 
+func FavoritesDoujinshi() (ContentList, error) {
+	var q favoritesCategory
+	if err := DoujinshiCategoryIndex("favorites", &q); err != nil {
+		return nil, err
+	} else {
+		return q.Collection, nil
+	}
+}
+
+func EnglishManga() (ContentList, error) {
+	var q englishCategory
+	if err := MangaCategoryIndex("english", &q); err != nil {
+		return nil, err
+	} else {
+		return q.Collection, nil
+	}
+}
+
+func EnglishDoujinshi() (ContentList, error) {
+	var q englishCategory
+	if err := DoujinshiCategoryIndex("english", &q); err != nil {
+		return nil, err
+	} else {
+		return q.Collection, nil
+	}
+}
+
+func NewestManga() (ContentList, error) {
+	var q newestCategory
+	if err := MangaCategoryIndex("newest", &q); err != nil {
+		return nil, err
+	} else {
+		return q.Collection, nil
+	}
+}
+
+func NewestDoujinshi() (ContentList, error) {
+	var q newestCategory
+	if err := DoujinshiCategoryIndex("newest", &q); err != nil {
+		return nil, err
+	} else {
+		return q.Collection, nil
+	}
 }
