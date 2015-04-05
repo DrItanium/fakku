@@ -215,6 +215,20 @@ func (this *Page) ThumbUrl() (*url.URL, error) {
 func (this *Page) ImageUrl() (*url.URL, error) {
 	return url.Parse(this.Image)
 }
+func (this *Page) ImageBytes() ([]byte, error) {
+	url, err := this.ImageUrl()
+	if err != nil {
+		return nil, err
+	}
+	return requestBytes(url)
+}
+func (this *Page) ThumbBytes() ([]byte, error) {
+	url, err := this.ThumbUrl()
+	if err != nil {
+		return nil, err
+	}
+	return requestBytes(url)
+}
 
 type contentReadOnlineApiFunction struct {
 	contentApiFunction

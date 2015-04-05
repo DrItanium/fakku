@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
 const (
@@ -81,4 +82,12 @@ func paginateString(s string, page uint) string {
 	} else {
 		return fmt.Sprintf("%s/page/%d", s, page)
 	}
+}
+func requestBytes(url *url.URL) ([]byte, error) {
+	resp, rerr := http.Get(url.String())
+	if rerr != nil {
+		return nil, rerr
+	}
+	defer resp.Body.Close()
+	return ioutil.ReadAll(resp.Body)
 }
