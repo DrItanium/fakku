@@ -3,6 +3,8 @@ package fakku
 import (
 	"encoding/json"
 	"fmt"
+	"image"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -27,6 +29,11 @@ type genericApiFunction struct {
 
 func (this genericApiFunction) Construct() string {
 	return fmt.Sprintf("%s/%s", apiHeader, this.Link)
+}
+
+func fragmentApiCall(fragment string, c interface{}) error {
+	f := genericApiFunction{Link: fragment}
+	return apiCall(f, &c)
 }
 
 type supportsPagination struct {
@@ -91,16 +98,38 @@ func paginateString(s string, page uint) string {
 		return fmt.Sprintf("%s/page/%d", s, page)
 	}
 }
-func requestBytes(url *url.URL) ([]byte, error) {
+func genericRequest(url *url.URL, fn func(io.Reader) error) error {
 	resp, rerr := http.Get(url.String())
 	if rerr != nil {
-		return nil, rerr
+		return rerr
 	}
 	defer resp.Body.Close()
-	return ioutil.ReadAll(resp.Body)
+	return fn(resp.Body)
+}
+func requestBytes(url *url.URL) ([]byte, error) {
+	var b []byte
+	op := func(r io.Reader) error {
+		var err error
+		b, err = ioutil.ReadAll(r)
+		return err
+	}
+	if result := genericRequest(url, op); result != nil {
+		return nil, result
+	} else {
+		return b, nil
+	}
 }
 
-func fragmentApiCall(fragment string, c interface{}) error {
-	f := genericApiFunction{Link: fragment}
-	return apiCall(f, &c)
+func requestImage(url *url.URL) (image.Image, error) {
+	var img image.Image
+	op := func(r io.Reader) error {
+		var err error
+		img, _, err = image.Decode(r)
+		return err
+	}
+	if result := genericRequest(url, op); result != nil {
+		return nil, result
+	} else {
+		return img, nil
+	}
 }
