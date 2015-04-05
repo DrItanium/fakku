@@ -166,7 +166,7 @@ func (c userCommentsApiFunction) Construct() string {
 	return paginateString(base, c.Page)
 }
 
-func GetUserCommentsPage(user string, page uint) (*UserCommentList, error) {
+func UserCommentsPage(user string, page uint) (*UserCommentList, error) {
 	var c UserCommentList
 	url := userCommentsApiFunction{
 		userApiFunction:    userApiFunction{Name: user},
@@ -180,13 +180,13 @@ func GetUserCommentsPage(user string, page uint) (*UserCommentList, error) {
 
 }
 
-func GetUserComments(user string) (*UserCommentList, error) {
-	return GetUserCommentsPage(user, 0)
+func UserComments(user string) (*UserCommentList, error) {
+	return UserCommentsPage(user, 0)
 }
 
 func (this *UserProfile) Comments() (*UserCommentList, error) {
-	return GetUserComments(this.Username)
+	return UserComments(this.Username)
 }
 func (this *UserProfile) CommentsPage(page uint) (*UserCommentList, error) {
-	return GetUserCommentsPage(this.Username, page)
+	return UserCommentsPage(this.Username, page)
 }

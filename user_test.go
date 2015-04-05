@@ -94,7 +94,7 @@ func TestGetUserTopics_1(t *testing.T) {
 }
 
 func TestGetUserComments_1(t *testing.T) {
-	comments, err := GetUserComments(TestUserName)
+	comments, err := UserComments(TestUserName)
 	if err != nil {
 		t.Fatal(err)
 	}
