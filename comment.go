@@ -75,7 +75,7 @@ func (this *Content) Comments() (*Comments, error) {
 
 type Comment struct {
 	Id           int64   `json:"comment_id"`
-	AttachedId   int64   `json:"comment_attached_id"`
+	Parent       int64   `json:"comment_attached_id"`
 	Poster       string  `json:"comment_poster"`
 	RawPosterUrl string  `json:"comment_poster_url"`
 	Reputation   float64 `json:"comment_reputation"`
@@ -102,4 +102,63 @@ type Comments struct {
 	PageNumber int         `json:"page"`
 	Total      int         `json:"total"`
 	Pages      int         `json:"pages"`
+}
+
+type UserComment struct {
+	Id          uint   `json:"comment_id"`
+	AttachedId  uint   `json:"comment_attached_id"`
+	Reputation  int    `json:"comment_reputation"`
+	Text        string `json:"comment_string"`
+	RawDate     int64  `json:"comment_date"`
+	ContentName string `json:"comment_content_name"`
+	ContentUrl  string `json:"comment_content_url"`
+}
+type UserCommentList []UserComment
+
+func (this *UserComment) Url() (*url.URL, error) {
+	return url.Parse(this.ContentUrl)
+}
+func (this *UserComment) Date() time.Time {
+	return time.Unix(this.RawDate, 0)
+}
+
+type UserComments struct {
+	CommentsList UserCommentList `json:"comments"`
+	Total        uint            `json:"total"`
+	Pages        uint            `json:"pages"`
+}
+
+type userCommentsApiFunction struct {
+	userApiFunction
+	supportsPagination
+}
+
+func (c userCommentsApiFunction) Construct() string {
+	base := fmt.Sprintf("%s/comments", c.userApiFunction.Construct())
+	return paginateString(base, c.Page)
+}
+
+func GetUserCommentsPage(user string, page uint) (*UserComments, error) {
+	var c UserComments
+	url := userCommentsApiFunction{
+		userApiFunction:    userApiFunction{Name: user},
+		supportsPagination: supportsPagination{Page: page},
+	}
+	if err := apiCall(url, &c); err != nil {
+		return nil, err
+	} else {
+		return &c, nil
+	}
+
+}
+
+func GetUserComments(user string) (*UserComments, error) {
+	return GetUserCommentsPage(user, 0)
+}
+
+func (this *UserProfile) Comments() (*UserComments, error) {
+	return GetUserComments(this.Username)
+}
+func (this *UserProfile) CommentsPage(page uint) (*UserComments, error) {
+	return GetUserCommentsPage(this.Username, page)
 }
