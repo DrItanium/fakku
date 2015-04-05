@@ -48,11 +48,11 @@ type Content struct {
 	Description  string
 	Language     string
 	Category     string
-	RawDate      float64
-	FileSize     float64
-	Favorites    float64
-	CommentCount float64
-	Pages        float64
+	RawDate      int64
+	FileSize     int64
+	Favorites    int64
+	CommentCount int64
+	Pages        int64
 	Poster       string
 	RawPosterUrl string
 	Tags         AttributeList `json:"content_tags"`
@@ -124,11 +124,11 @@ func (c *Content) populate(v map[string]interface{}) {
 	c.Description = v["content_description"].(string)
 	c.Language = v["content_language"].(string)
 	c.Category = v["content_category"].(string)
-	c.RawDate = v["content_date"].(float64)
-	c.FileSize = v["content_filesize"].(float64)
-	c.Favorites = v["content_favorites"].(float64)
-	c.CommentCount = v["content_comments"].(float64)
-	c.Pages = v["content_pages"].(float64)
+	c.RawDate = int64(v["content_date"].(float64))
+	c.FileSize = int64(v["content_filesize"].(float64))
+	c.Favorites = int64(v["content_favorites"].(float64))
+	c.CommentCount = int64(v["content_comments"].(float64))
+	c.Pages = int64(v["content_pages"].(float64))
 	c.Poster = v["content_poster"].(string)
 	c.RawPosterUrl = v["content_poster_url"].(string)
 	c.Tags = constructAttributeFields(v, "content_tags")
