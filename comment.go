@@ -150,12 +150,25 @@ func (this *ContentComment) User() (*UserProfile, error) {
 
 type UserComment struct {
 	CommentBody
-	Content string `json:"comment_content_name"`
-	RawUrl  string `json:"comment_content_url"`
+	ContentName string `json:"comment_content_name"`
+	RawUrl      string `json:"comment_content_url"`
 }
 
 func (this *UserComment) ContentUrl() (*url.URL, error) {
 	return url.Parse(this.RawUrl)
+}
+
+func (this *UserComment) Content() (*Content, error) {
+	url, err := this.ContentUrl()
+	if err != nil {
+		return nil, err
+	}
+	var c Content
+	if err2 := fragmentApiCall(url.Path, &c); err2 != nil {
+		return nil, err2
+	} else {
+		return &c, nil
+	}
 }
 
 type ContentCommentList struct {
