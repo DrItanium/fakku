@@ -37,6 +37,8 @@ func ContentComments(category, name string) (*Comments, error) {
 			Category: category,
 			Name:     name,
 		},
+		supportsPagination: supportsPagination{Page: 0},
+		TopComments:        false,
 	}
 	return getContentCommentsGeneric(url)
 }
@@ -48,6 +50,7 @@ func ContentCommentsPage(category, name string, page uint) (*Comments, error) {
 			Name:     name,
 		},
 		supportsPagination: supportsPagination{Page: page},
+		TopComments:        false,
 	}
 	return getContentCommentsGeneric(url)
 }
@@ -74,17 +77,17 @@ func (this *Content) Comments() (*Comments, error) {
 }
 
 type Comment struct {
-	Id           int64   `json:"comment_id"`
-	Parent       int64   `json:"comment_attached_id"`
-	Poster       string  `json:"comment_poster"`
-	RawPosterUrl string  `json:"comment_poster_url"`
-	Reputation   float64 `json:"comment_reputation"`
-	Text         string  `json:"comment_text"`
-	RawDate      int64   `json:"comment_date"`
+	Id         int64   `json:"comment_id"`
+	Parent     int64   `json:"comment_attached_id"`
+	Reputation float64 `json:"comment_reputation"`
+	Text       string  `json:"comment_text"`
+	RawDate    int64   `json:"comment_date"`
+	Name       string  `json:"comment_poster" json:"comment_content_name"`
+	RawUrl     string  `json:"comment_poster_url" json:"comment_content_url"`
 }
 
-func (this *Comment) PosterUrl() (*url.URL, error) {
-	return url.Parse(this.RawPosterUrl)
+func (this *Comment) Url() (*url.URL, error) {
+	return url.Parse(this.Name)
 }
 func (this *Comment) Date() time.Time {
 	return time.Unix(this.RawDate, 0)
@@ -104,6 +107,7 @@ type Comments struct {
 	Pages      int         `json:"pages"`
 }
 
+/*
 type UserComment struct {
 	Id          uint   `json:"comment_id"`
 	AttachedId  uint   `json:"comment_attached_id"`
@@ -113,19 +117,21 @@ type UserComment struct {
 	ContentName string `json:"comment_content_name"`
 	ContentUrl  string `json:"comment_content_url"`
 }
-type UserCommentList []UserComment
-
+*/
+//type UserCommentList []UserComment
+/*
 func (this *UserComment) Url() (*url.URL, error) {
 	return url.Parse(this.ContentUrl)
 }
 func (this *UserComment) Date() time.Time {
 	return time.Unix(this.RawDate, 0)
 }
+*/
 
 type UserComments struct {
-	CommentsList UserCommentList `json:"comments"`
-	Total        uint            `json:"total"`
-	Pages        uint            `json:"pages"`
+	CommentsList CommentList `json:"comments"`
+	Total        uint        `json:"total"`
+	Pages        uint        `json:"pages"`
 }
 
 type userCommentsApiFunction struct {
