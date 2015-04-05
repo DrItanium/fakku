@@ -21,6 +21,14 @@ type apiFunction interface {
 	Construct() string
 }
 
+type genericApiFunction struct {
+	Link string
+}
+
+func (this genericApiFunction) Construct() string {
+	return fmt.Sprintf("%s/%s", apiHeader, this.Link)
+}
+
 type supportsPagination struct {
 	Page uint
 }
@@ -90,4 +98,9 @@ func requestBytes(url *url.URL) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 	return ioutil.ReadAll(resp.Body)
+}
+
+func fragmentApiCall(fragment string, c interface{}) error {
+	f := genericApiFunction{Link: fragment}
+	return apiCall(f, &c)
 }

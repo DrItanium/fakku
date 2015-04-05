@@ -133,6 +133,21 @@ func (this *ContentComment) PosterUrl() (*url.URL, error) {
 	return url.Parse(this.RawUrl)
 }
 
+func (this *ContentComment) User() (*UserProfile, error) {
+	//we need to transform the url from a non-api call to one
+	url, err := this.PosterUrl()
+	if err != nil {
+		return nil, err
+	}
+	var c UserProfile
+	if err2 := fragmentApiCall(url.Path, &c); err2 != nil {
+		return nil, err2
+	} else {
+		return &c, nil
+	}
+
+}
+
 type UserComment struct {
 	CommentBody
 	Content string `json:"comment_content_name"`
