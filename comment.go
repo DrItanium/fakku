@@ -2,7 +2,6 @@ package fakku
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"time"
 )
@@ -15,7 +14,6 @@ type contentCommentApiFunction struct {
 
 func (a contentCommentApiFunction) Construct() string {
 	base := fmt.Sprintf("%s/comments", a.contentApiFunction.Construct())
-	log.Printf("url: %s", base)
 	if a.TopComments {
 		return fmt.Sprintf("%s/top", base)
 	} else {

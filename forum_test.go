@@ -9,14 +9,10 @@ func TestForumCategoriesApiFunction_1(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if len(output) == 0 {
+		t.Fatal("No forum categories found!")
+	}
 	result := output[0]
-
-	if result.Title != "FAKKU" {
-		t.Fatal("Didn't get FAKKU forum!")
-	}
-	if result.Forums[0].Name != "Front Page News" {
-		t.Error("Front Page News wasn't found!")
-	}
 	t.Logf("Forum: %s", result.Forums[0].Name)
 	rt := result.Forums[0].RecentTopic
 	t.Logf("Recent topic title: %s", rt.Title)
