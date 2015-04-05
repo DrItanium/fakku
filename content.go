@@ -18,7 +18,6 @@ const (
 	ErrorUnknownJsonLayout  = "Got an unknown layout back from content request. API Change?"
 )
 
-type AttributeList []Attribute
 type Attribute struct {
 	Attribute     string `json:"attribute"`
 	AttributeLink string `json:"attribute_link"`
@@ -44,6 +43,16 @@ func constructAttributeFields(c map[string]interface{}, field string) AttributeL
 		attrs[i].populate(tmp[i].(map[string]interface{}))
 	}
 	return attrs
+}
+
+type AttributeList []Attribute
+
+func (this AttributeList) JoinString(separator string) string {
+	strs := make([]string, len(this))
+	for i, x := range this {
+		strs[i] = x.Attribute
+	}
+	return strings.Join(strs, separator)
 }
 
 type Content struct {
@@ -128,12 +137,18 @@ func (this *Content) Sample() (image.Image, error) {
 func (this *Content) Date() time.Time {
 	return time.Unix(this.RawDate, 0)
 }
+
 func (this *Content) ArtistsString() string {
-	builder := make([]string, len(this.Artists))
-	for i, x := range this.Artists {
-		builder[i] = x.Attribute
-	}
-	return strings.Join(builder, ", ")
+	return this.Artists.JoinString(", ")
+}
+func (this *Content) TagsString() string {
+	return this.Tags.JoinString(", ")
+}
+func (this *Content) TranslatorsString() string {
+	return this.Translators.JoinString(", ")
+}
+func (this *Content) SeriesString() string {
+	return this.Series.JoinString(", ")
 }
 func (c *Content) UnmarshalJSON(b []byte) error {
 	var f interface{}
