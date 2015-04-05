@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -126,6 +127,13 @@ func (this *Content) Sample() (image.Image, error) {
 }
 func (this *Content) Date() time.Time {
 	return time.Unix(this.RawDate, 0)
+}
+func (this *Content) ArtistsString() string {
+	builder := make([]string, len(this.Artists))
+	for i, x := range this.Artists {
+		builder[i] = x.Attribute
+	}
+	return strings.Join(builder, ", ")
 }
 func (c *Content) UnmarshalJSON(b []byte) error {
 	var f interface{}
