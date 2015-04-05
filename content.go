@@ -80,7 +80,7 @@ func (this *Content) SampleUrl() (*url.URL, error) {
 	return url.Parse(https + this.Images.Sample)
 }
 func (this *Content) Date() time.Time {
-	return time.Unix(int64(this.RawDate), 0)
+	return time.Unix(this.RawDate, 0)
 }
 func (c *Content) UnmarshalJSON(b []byte) error {
 	var f interface{}
