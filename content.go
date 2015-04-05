@@ -162,7 +162,6 @@ func (a contentApiFunction) Construct() string {
 	return fmt.Sprintf("%s/%s/%s", apiHeader, a.Category, a.Name)
 }
 
-type PageList []Page
 type ReadOnlineContent struct {
 	Content Content  `json:"content"`
 	Pages   PageList `json:"pages"`

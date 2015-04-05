@@ -8,6 +8,7 @@ import (
 	"os"
 )
 
+type PageList []Page
 type Page struct {
 	rawThumb string
 	rawImage string
@@ -59,12 +60,12 @@ func (this *Page) Image() (image.Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	return requestImage(url)
+	return requestJpeg(url)
 }
 func (this *Page) Thumbnail() (image.Image, error) {
 	url, err := this.ThumbUrl()
 	if err != nil {
 		return nil, err
 	}
-	return requestImage(url)
+	return requestJpeg(url)
 }

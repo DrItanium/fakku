@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+	"image/jpeg"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -120,11 +121,11 @@ func requestBytes(url *url.URL) ([]byte, error) {
 	}
 }
 
-func requestImage(url *url.URL) (image.Image, error) {
+func requestJpeg(url *url.URL) (image.Image, error) {
 	var img image.Image
 	op := func(r io.Reader) error {
 		var err error
-		img, _, err = image.Decode(r)
+		img, err = jpeg.Decode(r)
 		return err
 	}
 	if result := genericRequest(url, op); result != nil {
