@@ -3,7 +3,10 @@ package fakku
 import (
 	"encoding/json"
 	"fmt"
+	"image"
+	"io/ioutil"
 	"net/url"
+	"os"
 	"strconv"
 	"time"
 )
@@ -60,8 +63,8 @@ type Content struct {
 	Series       AttributeList `json:"content_series"`
 	Artists      AttributeList `json:"content_artists"`
 	Images       struct {
-		Cover  string
-		Sample string
+		RawCover  string
+		RawSample string
 	}
 	rawName string
 }
@@ -74,10 +77,52 @@ func (this *Content) PosterUrl() (*url.URL, error) {
 	return url.Parse(https + this.RawPosterUrl)
 }
 func (this *Content) CoverUrl() (*url.URL, error) {
-	return url.Parse(https + this.Images.Cover)
+	return url.Parse(https + this.Images.RawCover)
+}
+func (this *Content) CoverBytes() ([]byte, error) {
+	url, err := this.CoverUrl()
+	if err != nil {
+		return nil, err
+	}
+	return requestBytes(url)
+}
+func (this *Content) SaveCover(path string, perms os.FileMode) error {
+	img, ierr := this.CoverBytes()
+	if ierr != nil {
+		return ierr
+	}
+	return ioutil.WriteFile(path, img, perms)
+}
+func (this *Content) Cover() (image.Image, error) {
+	url, err := this.CoverUrl()
+	if err != nil {
+		return nil, err
+	}
+	return requestJpeg(url)
 }
 func (this *Content) SampleUrl() (*url.URL, error) {
-	return url.Parse(https + this.Images.Sample)
+	return url.Parse(https + this.Images.RawSample)
+}
+func (this *Content) SampleBytes() ([]byte, error) {
+	url, err := this.SampleUrl()
+	if err != nil {
+		return nil, err
+	}
+	return requestBytes(url)
+}
+func (this *Content) SaveSample(path string, perms os.FileMode) error {
+	img, ierr := this.SampleBytes()
+	if ierr != nil {
+		return ierr
+	}
+	return ioutil.WriteFile(path, img, perms)
+}
+func (this *Content) Sample() (image.Image, error) {
+	url, err := this.SampleUrl()
+	if err != nil {
+		return nil, err
+	}
+	return requestJpeg(url)
 }
 func (this *Content) Date() time.Time {
 	return time.Unix(this.RawDate, 0)
@@ -138,8 +183,8 @@ func (c *Content) populate(v map[string]interface{}) {
 
 	tmp := v["content_images"]
 	z := tmp.(map[string]interface{})
-	c.Images.Cover = z["cover"].(string)
-	c.Images.Sample = z["sample"].(string)
+	c.Images.RawCover = z["cover"].(string)
+	c.Images.RawSample = z["sample"].(string)
 }
 
 func GetContent(category, name string) (*Content, error) {
