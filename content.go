@@ -165,8 +165,8 @@ func (a contentApiFunction) Construct() string {
 
 type contentCommentApiFunction struct {
 	contentApiFunction
-	TopComments bool
 	supportsPagination
+	TopComments bool
 }
 
 func (a contentCommentApiFunction) Construct() string {
@@ -230,8 +230,8 @@ func (this *Content) Comments() (*Comments, error) {
 }
 
 type Comment struct {
-	Id           int     `json:"comment_id"`
-	AttachedId   int     `json:"comment_attached_id"`
+	Id           int64   `json:"comment_id"`
+	AttachedId   int64   `json:"comment_attached_id"`
 	Poster       string  `json:"comment_poster"`
 	RawPosterUrl string  `json:"comment_poster_url"`
 	Reputation   float64 `json:"comment_reputation"`
@@ -246,11 +246,18 @@ func (this *Comment) Date() time.Time {
 	return time.Unix(int64(this.RawDate), 0)
 }
 
+/*
+func (this *Comment) PosterInformation() (*UserProfile, error) {
+	return
+}
+*/
+
+type CommentList []Comment
 type Comments struct {
-	Comments   []Comment `json:"comments"`
-	PageNumber int       `json:"page"`
-	Total      int       `json:"total"`
-	Pages      int       `json:"pages"`
+	Comments   CommentList `json:"comments"`
+	PageNumber int         `json:"page"`
+	Total      int         `json:"total"`
+	Pages      int         `json:"pages"`
 }
 type PageList []Page
 type ReadOnlineContent struct {
@@ -280,12 +287,12 @@ func (r *ReadOnlineContent) UnmarshalJSON(b []byte) error {
 		q := f.([]interface{})
 		if len(q) == 0 {
 			// doesn't exist
-			return fmt.Errorf("Content doesn't exist")
+			return fmt.Errorf(ErrorContentDoesntExist)
 		} else {
-			return fmt.Errorf("Got unknown json data back from content request. API Change?")
+			return fmt.Errorf(ErrorUnknownJsonData)
 		}
 	default:
-		return fmt.Errorf("Got an unknown layout back from content request. API Change?")
+		return fmt.Errorf(ErrorUnknownJsonLayout)
 	}
 }
 
