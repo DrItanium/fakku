@@ -101,5 +101,9 @@ func TestGetUserComments_1(t *testing.T) {
 
 	if comments.Total < 1 {
 		t.Errorf("Expected at least 1 comment, got %d", comments.Total)
+	} else {
+		for ind, data := range comments.Comments {
+			t.Logf("%d: %s [%s]", ind, data.Text, data.Date().String())
+		}
 	}
 }
