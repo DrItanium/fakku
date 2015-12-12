@@ -217,7 +217,6 @@ func (c *Content) populate(v map[string]interface{}) {
 func GetContent(category, name string) (*Content, error) {
 	var c Content
 	url := contentApiFunction{Category: category, Name: name}
-	fmt.Println(url.Construct())
 	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
