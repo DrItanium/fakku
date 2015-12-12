@@ -189,7 +189,11 @@ func (c *Content) UnmarshalJSON(b []byte) error {
 func (c *Content) populate(v map[string]interface{}) {
 	c.Name = v["content_name"].(string)
 	c.RawUrl = v["content_url"].(string)
-	c.Description = v["content_description"].(string)
+	if z, ok := v["content_description"]; ok {
+		c.Description = z.(string)
+	} else {
+		c.Description = ""
+	}
 	c.Language = v["content_language"].(string)
 	c.Category = v["content_category"].(string)
 	c.RawDate = int64(v["content_date"].(float64))
@@ -213,6 +217,7 @@ func (c *Content) populate(v map[string]interface{}) {
 func GetContent(category, name string) (*Content, error) {
 	var c Content
 	url := contentApiFunction{Category: category, Name: name}
+	fmt.Println(url.Construct())
 	if err := apiCall(url, &c); err != nil {
 		return nil, err
 	} else {
